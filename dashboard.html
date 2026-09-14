@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
 <meta name="theme-color" content="#fff8fb" />
-<title>GAP Desk Finds — Content Dashboard V1.2.1</title>
+<title>GAP Desk Finds — Content Dashboard V1.7.0</title>
 <style>
 :root{--bg:#fff8fb;--card:#fff;--rose50:#fff8fb;--rose100:#fdeef4;--rose200:#f8dce7;--rose300:#efbfd0;--rose400:#e9a6bd;--rose600:#bf6887;--rose700:#a95d79;--rose800:#83485e;--text:#30272c;--muted:#81747b;--line:#f6dfe8;--green:#17815d;--amber:#a86c18;--blue:#3c6ea8;--shadow:0 12px 35px rgba(169,93,121,.10)}
 *{box-sizing:border-box}html{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}body{margin:0;min-width:320px}button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -835,6 +835,31 @@
 @media(max-width:760px){.auth-card{padding:23px}.topbar-actions .private-pill{display:none}.security-grid{grid-template-columns:1fr}.logout-btn{padding:8px}.topbar-actions{gap:5px}}
 </style>
 
+
+<style id="v170-thread-analysis-styles">
+/* GAP Desk Finds · V1.7.0 · Threads Content Intelligence */
+.thread-analysis-card{margin-top:18px}
+.thread-analysis-toolbar{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.thread-analysis-toolbar .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.thread-analysis-toolbar .filter-group{min-width:185px}
+.thread-insight-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.thread-insight-mini{border:1px solid var(--line);background:var(--rose50);border-radius:16px;padding:13px}
+.thread-insight-mini small{display:block;color:#9d8f96;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+.thread-insight-mini b{display:block;margin-top:6px;font-size:17px}
+.analysis-table{min-width:1120px}
+.analysis-table td,.analysis-table th{white-space:nowrap}
+.analysis-table .analysis-copy{white-space:normal;min-width:260px;max-width:380px;font-weight:800}
+.analysis-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:1px solid var(--line);background:#fff;border-radius:999px;font-size:10px;font-weight:800;color:#775e68}
+.analysis-badge.yes{background:#fff1f6;color:var(--rose700)}
+.analysis-note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px}
+.analysis-section-title{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:18px 0 10px}
+.analysis-section-title h3{margin:0;font-size:17px}
+.thread-meta-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.thread-metrics-fields{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+@media(max-width:1100px){.thread-metrics-fields{grid-template-columns:repeat(4,minmax(0,1fr))}.thread-insight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.thread-meta-fields,.thread-metrics-fields,.thread-insight-grid{grid-template-columns:1fr 1fr}.thread-analysis-toolbar .controls,.thread-analysis-toolbar .filter-group{width:100%;min-width:0}}
+@media(max-width:520px){.thread-meta-fields,.thread-metrics-fields,.thread-insight-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div id="app" class="app"></div>
@@ -3177,7 +3202,7 @@ function shell(body){
   const [ic,title]=sectionMeta[state.section]||['✨','GAP Desk Finds'];
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.6.1</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.7.0</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -3290,6 +3315,220 @@ async function initSecureDashboard(){
   const s=await ensureSession(true);
   if(!s)return showLogin();
   await startSecureDashboard();
+}
+
+
+// ============================================================
+// GAP DESK FINDS · V1.7.0
+// Threads Content Intelligence
+// Compara hora, tipo, producto, imagen y métricas por publicación
+// ============================================================
+const THREAD_TYPES=['Pregunta / conversación','Opinión','Storytelling','Recomendación','Producto / afiliado','Educativo / tip','Hilo / serie','Personal / lifestyle','Otro'];
+let threadInsightFilters={dimension:'hour',period:'all'};
+
+function setThreadInsightFilter(key,value){threadInsightFilters[key]=value;render()}
+function threadProductName(c){const p=state.products.find(x=>Number(x.id)===Number(c.productId));return p?.name||'Sin producto'}
+function threadHasImage(c){
+  if(typeof c.hasImage==='boolean')return c.hasImage;
+  if(c.image)return true;
+  const p=c._livePost||{};
+  const mt=String(p.media_type||p.mediaType||'').toUpperCase();
+  return !!(p.image_url||p.thumbnail_url||mt.includes('IMAGE')||mt.includes('CAROUSEL'));
+}
+function threadActualDate(c){
+  const raw=c?._livePost?.posted_at||c?._livePost?.timestamp||c?.posted_at||c?.timestamp;
+  if(raw){const d=new Date(raw);if(!isNaN(d))return d}
+  if(c?.date){const d=new Date(c.date+'T12:00:00');if(!isNaN(d))return d}
+  return null;
+}
+function threadTimeValue(c){
+  const raw=c?._livePost?.posted_at||c?._livePost?.timestamp||c?.posted_at||c?.timestamp;
+  if(raw){const d=new Date(raw);if(!isNaN(d))return d.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit',hour12:false})}
+  return c?.publicationTime||'—';
+}
+function threadHourGroup(c){
+  const raw=c?._livePost?.posted_at||c?._livePost?.timestamp||c?.posted_at||c?.timestamp;
+  let h=null;
+  if(raw){const d=new Date(raw);if(!isNaN(d))h=d.getHours()}
+  if(h===null&&/^\\d{2}:\\d{2}$/.test(c?.publicationTime||''))h=Number(c.publicationTime.slice(0,2));
+  return Number.isInteger(h)?`${String(h).padStart(2,'0')}:00–${String(h).padStart(2,'0')}:59`:'Sin hora';
+}
+function threadTypeValue(c){return c.threadType||c.type||'Sin clasificar'}
+function threadClicksValue(c){return +(c.threadClicks??c.linkClicks??c._livePost?.clicks??0)||0}
+function threadFollowersGained(c){return +(c.followersGained??0)||0}
+function threadInsightPeriodMatch(c){
+  if(threadInsightFilters.period==='all')return true;
+  const d=threadActualDate(c);if(!d)return false;
+  const days=threadInsightFilters.period==='7d'?7:threadInsightFilters.period==='30d'?30:90;
+  return d.getTime()>=Date.now()-days*86400000;
+}
+function threadInsightRows(){
+  return state.content.filter(c=>c.platform==='Threads'&&c.status==='Publicado').map(hydrateThreadRecord).filter(threadInsightPeriodMatch);
+}
+function avg(rows,key){return rows.length?Math.round(rows.reduce((s,r)=>s+(+key(r)||0),0)/rows.length):0}
+function threadGroupKey(c){
+  if(threadInsightFilters.dimension==='type')return threadTypeValue(c);
+  if(threadInsightFilters.dimension==='product')return threadProductName(c);
+  if(threadInsightFilters.dimension==='image')return threadHasImage(c)?'Con imagen':'Sin imagen';
+  return threadHourGroup(c);
+}
+function threadInsightGroups(rows){
+  const map=new Map();
+  for(const r of rows){const k=threadGroupKey(r);if(!map.has(k))map.set(k,[]);map.get(k).push(r)}
+  return [...map.entries()].map(([name,items])=>({name,items,posts:items.length,views:avg(items,x=>x.views),likes:avg(items,x=>x.likes),replies:avg(items,x=>x.replies),reposts:avg(items,x=>x.reposts),followers:avg(items,threadFollowersGained),clicks:avg(items,threadClicksValue)})).sort((a,b)=>b.views-a.views);
+}
+function threadInsightDimensionLabel(){return {hour:'Hora de publicación',type:'Tipo de Thread',product:'Producto mencionado',image:'Imagen'}[threadInsightFilters.dimension]||'Grupo'}
+function threadContentIntelligence(){
+  const rows=threadInsightRows();
+  const groups=threadInsightGroups(rows);
+  const matched=rows.filter(r=>r._liveMatched).length;
+  const withProduct=rows.filter(r=>r.productId).length;
+  const withImage=rows.filter(threadHasImage).length;
+  const totalClicks=rows.reduce((s,r)=>s+threadClicksValue(r),0);
+  return `<div class="card p20 thread-analysis-card">
+    <div class="thread-analysis-toolbar">
+      <div><div class="category">🧠 THREADS CONTENT INTELLIGENCE</div><h2 style="font-size:21px;margin:5px 0 0">¿Qué tipo de contenido funciona mejor?</h2><p class="muted" style="margin:6px 0 0">Cruza tus datos editoriales con las métricas reales de cada Thread.</p></div>
+      <div class="controls">
+        <div class="filter-group"><label>Comparar por</label><select class="input compact-select" onchange="setThreadInsightFilter('dimension',this.value)">
+          <option value="hour" ${threadInsightFilters.dimension==='hour'?'selected':''}>Hora de publicación</option>
+          <option value="type" ${threadInsightFilters.dimension==='type'?'selected':''}>Tipo de Thread</option>
+          <option value="product" ${threadInsightFilters.dimension==='product'?'selected':''}>Producto mencionado</option>
+          <option value="image" ${threadInsightFilters.dimension==='image'?'selected':''}>Con imagen / sin imagen</option>
+        </select></div>
+        <div class="filter-group"><label>Periodo</label><select class="input compact-select" onchange="setThreadInsightFilter('period',this.value)">
+          <option value="all" ${threadInsightFilters.period==='all'?'selected':''}>Todo</option>
+          <option value="7d" ${threadInsightFilters.period==='7d'?'selected':''}>Últimos 7 días</option>
+          <option value="30d" ${threadInsightFilters.period==='30d'?'selected':''}>Últimos 30 días</option>
+          <option value="90d" ${threadInsightFilters.period==='90d'?'selected':''}>Últimos 90 días</option>
+        </select></div>
+      </div>
+    </div>
+    <div class="thread-insight-grid">
+      <div class="thread-insight-mini"><small>Threads analizados</small><b>${rows.length}</b></div>
+      <div class="thread-insight-mini"><small>Con métricas API</small><b>${matched}</b></div>
+      <div class="thread-insight-mini"><small>Con producto</small><b>${withProduct}</b></div>
+      <div class="thread-insight-mini"><small>Clics registrados</small><b>${totalClicks.toLocaleString()}</b></div>
+    </div>
+    ${rows.length?`
+      <div class="analysis-section-title"><h3>Comparación por ${esc(threadInsightDimensionLabel())}</h3><small class="muted">Promedio por publicación · ordenado por visualizaciones</small></div>
+      <div class="table-wrap"><table class="table analysis-table"><thead><tr><th>${esc(threadInsightDimensionLabel())}</th><th>Posts</th><th>Views prom.</th><th>Likes prom.</th><th>Resp. prom.</th><th>Reposts prom.</th><th>Seguidores prom.</th><th>Clics prom.</th></tr></thead><tbody>
+        ${groups.map(g=>`<tr><td><b>${esc(g.name)}</b></td><td>${g.posts}</td><td><b>${g.views.toLocaleString()}</b></td><td>${g.likes.toLocaleString()}</td><td>${g.replies.toLocaleString()}</td><td>${g.reposts.toLocaleString()}</td><td>${g.followers.toLocaleString()}</td><td>${g.clicks.toLocaleString()}</td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="analysis-section-title"><h3>Detalle por publicación</h3><small class="muted">Para detectar patrones reales, no solo totales.</small></div>
+      <div class="table-wrap"><table class="table analysis-table"><thead><tr><th>Thread</th><th>Fecha / hora</th><th>Tipo</th><th>Producto</th><th>Imagen</th><th>Views</th><th>Likes</th><th>Respuestas</th><th>Reposts</th><th>Seguidores obtenidos</th><th>Clics</th></tr></thead><tbody>
+        ${rows.sort((a,b)=>(+b.views||0)-(+a.views||0)).map(r=>`<tr>
+          <td class="analysis-copy">${esc((r.copy||'Thread sin copy').slice(0,120))}${r._liveMatched?' <span class="analysis-badge">API</span>':''}</td>
+          <td>${esc(r.date||'—')}<br><small class="muted">${esc(threadTimeValue(r))}</small></td>
+          <td>${esc(threadTypeValue(r))}</td><td>${esc(threadProductName(r))}</td>
+          <td><span class="analysis-badge ${threadHasImage(r)?'yes':''}">${threadHasImage(r)?'🖼️ Con imagen':'◻️ Sin imagen'}</span></td>
+          <td><b>${(+r.views||0).toLocaleString()}</b></td><td>${(+r.likes||0).toLocaleString()}</td><td>${(+r.replies||0).toLocaleString()}</td><td>${(+r.reposts||0).toLocaleString()}</td><td>${threadFollowersGained(r).toLocaleString()}</td><td>${threadClicksValue(r).toLocaleString()}</td>
+        </tr>`).join('')}
+      </tbody></table></div>
+      <p class="analysis-note">💡 Visualizaciones, likes, respuestas y reposts se actualizan desde Threads cuando la publicación está vinculada. <b>Seguidores obtenidos y clics</b> quedan como campos editoriales para que puedas registrarlos y compararlos por post.</p>
+    `:`<div class="empty"><div class="bubble">🧠</div><p>Publica y registra tus Threads para empezar a comparar hora, tipo, producto e imagen.</p></div>`}
+  </div>`;
+}
+
+// Conserva los campos estratégicos manuales al hidratar métricas API
+function hydrateThreadRecord(c){
+  if(c.platform!=='Threads')return c;
+  const p=matchThreadPost(c);
+  if(!p)return c;
+  return {...c,threadId:p.thread_id,threadPermalink:p.permalink||c.threadPermalink,views:+p.views||0,likes:+p.likes||0,replies:+p.replies||0,reposts:+p.reposts||0,quotes:+p.quotes||0,shares:+p.shares||0,_liveMatched:true,_livePost:p};
+}
+
+function previewContentImage(inp){
+  const f=inp.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{document.getElementById('c_image').value=r.result;const im=document.getElementById('c_preview');im.src=r.result;im.classList.remove('hidden');const hi=document.getElementById('c_hasImage');if(hi)hi.value='yes'};
+  r.readAsDataURL(f);
+}
+
+function contentModal(c){
+  c=c.platform==='Threads'?hydrateThreadRecord(c):c;
+  const isP=c.platform==='Pinterest',isT=c.platform==='Threads';
+  const hasImg=threadHasImage(c);
+  modal(c.id?'Editar publicación':'Nueva publicación',`<form class="modal-body" onsubmit="saveContent(event,${c.id||'null'})">
+    <div class="grid field-grid-3 gap12">
+      ${field('Fecha',`<input id="c_date" type="date" class="input" value="${val(c.date)}" required>`)}
+      ${field('Plataforma',`<select id="c_platform" class="input" onchange="rerenderContentModal(${c.id||'null'})">${['Threads','Pinterest','Instagram','TikTok','Otro'].map(x=>`<option ${c.platform===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+      ${field('Estado',`<select id="c_status" class="input">${['Idea','Pendiente','Preparado','Publicado'].map(x=>`<option ${c.status===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+    </div>
+    ${isT?`<div class="thread-meta-fields">
+      ${field('Hora de publicación',`<input id="c_time" type="time" class="input" value="${val(c.publicationTime||(!c.id?'':threadTimeValue(c).replace('—','')))}">`)}
+      ${field('Tipo de Thread',`<select id="c_threadType" class="input"><option value="">Selecciona un tipo</option>${THREAD_TYPES.map(x=>`<option value="${esc(x)}" ${(c.threadType||'')===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`)}
+      ${field('Visual del Thread',`<select id="c_hasImage" class="input"><option value="no" ${!hasImg?'selected':''}>Sin imagen</option><option value="yes" ${hasImg?'selected':''}>Con imagen</option></select>`)}
+    </div>`:''}
+    <div class="grid field-grid-3 gap12">
+      ${field('Objetivo del contenido',`<select id="c_objective" class="input" required><option value="">Selecciona un objetivo</option>${CONTENT_OBJECTIVES.map(x=>`<option value="${x}" ${objectiveSelectValue(c)===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+      ${field(isT?'Formato / estilo':'Tipo / formato',`<input id="c_type" class="input" value="${val(c.type)}" placeholder="${isT?'Texto, foto real, carrusel…':'Foto real, pregunta, carrusel…'}">`)}
+      ${field('Tema',`<input id="c_topic" class="input" value="${val(c.topic)}" placeholder="Real setup, organización…">`)}
+    </div>
+    ${field(isP?'Copy / nota interna':'Copy',`<textarea id="c_copy" class="input" placeholder="Texto de la publicación…">${val(c.copy)}</textarea>`)}
+    <div class="grid field-grid-2 gap12">
+      ${field(isT?'Producto mencionado':'Producto relacionado',`<select id="c_product" class="input"><option value="">Sin producto</option>${state.products.map(p=>`<option value="${p.id}" ${Number(c.productId)===Number(p.id)?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`)}
+      ${field('Imagen',`<input id="c_image_file" type="file" accept="image/*" class="input" onchange="previewContentImage(this)">`)}
+    </div>
+    ${c.image?`<img id="c_preview" class="image-preview" src="${c.image}"><input type="hidden" id="c_image" value="${c.image}">`:`<img id="c_preview" class="image-preview hidden"><input type="hidden" id="c_image">`}
+    ${isP?`<div class="subbox"><b style="color:var(--rose700)">Campos Pinterest</b>
+      ${field('Título',`<input id="c_ptitle" class="input" value="${val(c.pinterestTitle)}">`)}
+      ${field('Descripción',`<textarea id="c_pdesc" class="input">${val(c.pinterestDescription)}</textarea>`)}
+      <div class="grid field-grid-2 gap12">${field('Keywords',`<input id="c_keywords" class="input" value="${val(c.keywords)}">`)}${field('Alt text',`<input id="c_alt" class="input" value="${val(c.altText)}">`)}</div>
+    </div>`:''}
+    <div class="subbox"><b>Métricas${(isT&&c._liveMatched)?' · 🟢 sincronizadas desde Threads API':''}</b>
+      ${isP?`<div class="grid field-grid-4 gap12">
+        ${field('Impresiones',`<input id="c_impressions" type="number" min="0" class="input" value="${num(c.impressions)}">`)}
+        ${field('Clics',`<input id="c_clicks" type="number" min="0" class="input" value="${num(c.clicks)}">`)}
+        ${field('Guardados',`<input id="c_saves" type="number" min="0" class="input" value="${num(c.saves)}">`)}
+        ${field('Clics Amazon',`<input id="c_amazonClicks" type="number" min="0" class="input" value="${num(c.amazonClicks)}">`)}
+      </div>`:`<div class="thread-metrics-fields">
+        ${field('Visualizaciones',`<input id="c_views" type="number" min="0" class="input" value="${num(c.views)}">`)}
+        ${field('Likes',`<input id="c_likes" type="number" min="0" class="input" value="${num(c.likes)}">`)}
+        ${field('Respuestas',`<input id="c_replies" type="number" min="0" class="input" value="${num(c.replies)}">`)}
+        ${field('Reposts',`<input id="c_reposts" type="number" min="0" class="input" value="${num(c.reposts)}">`)}
+        ${field('Seguidores obtenidos',`<input id="c_followers" type="number" min="0" class="input" value="${num(c.followersGained)}">`)}
+        ${field('Clics',`<input id="c_threadClicks" type="number" min="0" class="input" value="${num(c.threadClicks)}">`)}
+        ${field('Quotes',`<input id="c_quotes" type="number" min="0" class="input" value="${num(c.quotes)}">`)}
+      </div>`}
+    </div>
+    ${isT?`<div class="notice" style="background:#fff8fb;border-color:#f3dce5;color:#7c4b5e"><b>Para el análisis:</b> hora, tipo de Thread, producto, imagen, seguidores obtenidos y clics quedan guardados en tu ficha editorial. Las métricas API se actualizan cuando existe una coincidencia con el Thread real.</div>`:''}
+    ${field('Notas: qué funcionó / observaciones',`<textarea id="c_notes" class="input">${val(c.notes)}</textarea>`)}
+    <div class="modal-actions">${c.id?`<button type="button" class="btn danger" onclick="deleteContent(${c.id})">Eliminar</button>`:''}<button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary">Guardar publicación</button></div>
+  </form>`);
+}
+
+function rerenderContentModal(id){
+  const original=id?state.content.find(x=>x.id===id):{};const g=n=>document.getElementById(n);const p=g('c_platform').value;
+  const obj={...original,date:g('c_date').value,platform:p,status:g('c_status').value,objective:g('c_objective')?.value||'',type:g('c_type')?.value||'',topic:g('c_topic')?.value||'',copy:g('c_copy')?.value||'',productId:+g('c_product')?.value||undefined,image:g('c_image')?.value||undefined,publicationTime:g('c_time')?.value||original.publicationTime||'',threadType:g('c_threadType')?.value||original.threadType||'',hasImage:g('c_hasImage')?g('c_hasImage').value==='yes':original.hasImage,threadClicks:+g('c_threadClicks')?.value||original.threadClicks||0,followersGained:+g('c_followers')?.value||original.followersGained||0};
+  contentModal(obj);
+}
+
+async function saveContent(e,id){
+  e.preventDefault();const g=n=>document.getElementById(n),p=g('c_platform').value,existing=id?state.content.find(x=>x.id===id):{};
+  const obj={...existing,date:g('c_date').value,dayLabel:id?(existing?.dayLabel||dayName(g('c_date').value)):dayName(g('c_date').value),platform:p,status:g('c_status').value,objective:g('c_objective').value,type:g('c_type').value,topic:g('c_topic').value,copy:g('c_copy').value,productId:+g('c_product').value||undefined,image:g('c_image').value||undefined,notes:g('c_notes').value};
+  if(p==='Pinterest'){
+    Object.assign(obj,{pinterestTitle:g('c_ptitle').value,pinterestDescription:g('c_pdesc').value,keywords:g('c_keywords').value,altText:g('c_alt').value,impressions:+g('c_impressions').value||0,clicks:+g('c_clicks').value||0,saves:+g('c_saves').value||0,amazonClicks:+g('c_amazonClicks').value||0});
+  }else{
+    Object.assign(obj,{publicationTime:g('c_time')?.value||obj.publicationTime||'',threadType:g('c_threadType')?.value||obj.threadType||'',hasImage:g('c_hasImage')?g('c_hasImage').value==='yes':!!obj.image,views:+g('c_views')?.value||0,likes:+g('c_likes')?.value||0,replies:+g('c_replies')?.value||0,reposts:+g('c_reposts')?.value||0,quotes:+g('c_quotes')?.value||0,followersGained:+g('c_followers')?.value||0,threadClicks:+g('c_threadClicks')?.value||0});
+  }
+  if(id){obj.id=id;await put('content',obj)}else await add('content',obj);
+  closeModal();await refresh();toast('Publicación guardada ✓');
+}
+
+// Añade el análisis avanzado debajo del resumen normal de Threads
+function threadsAnalyticsCard(){
+  const remote=getRemoteMetrics(),t=remote.threads||{},threadsLocal=state.content.filter(c=>c.platform==='Threads'&&c.status==='Publicado');
+  const views=t.views??threadsLocal.reduce((s,c)=>s+(+c.views||0),0),likes=t.likes??threadsLocal.reduce((s,c)=>s+(+c.likes||0),0);
+  const replies=t.replies??threadsLocal.reduce((s,c)=>s+(+c.replies||0),0),reposts=t.reposts??threadsLocal.reduce((s,c)=>s+(+c.reposts||0),0);
+  const quotes=t.quotes??0,followers=t.followers??0,eng=views?((likes+replies+reposts+quotes)/views*100):0;
+  const last=remote.lastSync?new Date(remote.lastSync).toLocaleString('es-EC'):'Aún no sincronizado';
+  return `<div class="card integration-card">
+    <div class="connection-row"><div class="analytics-logo-note"><img src="${platformLogo('threads','000000')}" alt="Threads"><div><div class="category">THREADS ANALYTICS</div><h3 style="margin:5px 0 0">Rendimiento de Threads</h3></div></div>${connectionBadge(Object.keys(t).length?'connected':'error')}</div>
+    <div class="platform-kpis">
+      <div class="platform-kpi"><small>Visualizaciones</small><b>${(+views||0).toLocaleString()}</b></div><div class="platform-kpi"><small>Engagement</small><b>${pc(eng)}</b></div>
+      <div class="platform-kpi"><small>Likes</small><b>${(+likes||0).toLocaleString()}</b></div><div class="platform-kpi"><small>Respuestas</small><b>${(+replies||0).toLocaleString()}</b></div>
+      <div class="platform-kpi"><small>Reposts + quotes</small><b>${(+reposts||0)+(+quotes||0)}</b></div><div class="platform-kpi"><small>Seguidores</small><b>${(+followers||0).toLocaleString()}</b></div>
+    </div><div class="divider"></div><small class="muted">Última sincronización Threads: ${esc(last)}</small>
+  </div>${threadsTopPosts()}${threadContentIntelligence()}`;
 }
 
 initSecureDashboard();
