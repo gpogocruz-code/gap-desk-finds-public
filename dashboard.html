@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
 <meta name="theme-color" content="#fff8fb" />
-<title>GAP Desk Finds — Content Dashboard V1.7.2</title>
+<title>GAP Desk Finds — Content Dashboard V1.7.3</title>
 <style>
 :root{--bg:#fff8fb;--card:#fff;--rose50:#fff8fb;--rose100:#fdeef4;--rose200:#f8dce7;--rose300:#efbfd0;--rose400:#e9a6bd;--rose600:#bf6887;--rose700:#a95d79;--rose800:#83485e;--text:#30272c;--muted:#81747b;--line:#f6dfe8;--green:#17815d;--amber:#a86c18;--blue:#3c6ea8;--shadow:0 12px 35px rgba(169,93,121,.10)}
 *{box-sizing:border-box}html{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}body{margin:0;min-width:320px}button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
@@ -3709,8 +3709,8 @@ async function saveContent(e,id){
 }
 
 // ============================================================
-// GAP DESK FINDS · V1.7.2
-// Tracking en pausa hasta Pinterest API + Amazon Reporting API
+// GAP DESK FINDS · V1.7.3
+// Threads analysis: clicks/CTR removed; Amazon/Pinterest clicks remain separate
 // ============================================================
 
 // La V1.7.2 mantiene la estructura preparada, pero no crea ni consume
@@ -3721,7 +3721,7 @@ function shell(body){
   const [ic,title]=sectionMeta[state.section]||['✨','GAP Desk Finds'];
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.7.2</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.7.3</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -3766,7 +3766,7 @@ function threadContentIntelligence(){
   const totalEstimatedFollowers=rows.reduce((s,r)=>s+threadFollowersGained(r),0);
   return `<div class="card p20 thread-analysis-card">
     <div class="thread-analysis-toolbar">
-      <div><div class="category">🧠 THREADS CONTENT INTELLIGENCE</div><h2 style="font-size:21px;margin:5px 0 0">¿Qué tipo de contenido funciona mejor?</h2><p class="muted" style="margin:6px 0 0">Cruza tus datos editoriales con las métricas reales de Threads. Los clics quedan reservados para las APIs oficiales.</p></div>
+      <div><div class="category">🧠 THREADS CONTENT INTELLIGENCE</div><h2 style="font-size:21px;margin:5px 0 0">¿Qué tipo de contenido funciona mejor?</h2><p class="muted" style="margin:6px 0 0">Cruza tus datos editoriales con las métricas que Threads sí entrega. Los clics no forman parte del análisis de Threads.</p></div>
       <div class="controls">
         <div class="filter-group"><label>Comparar por</label><select class="input compact-select" onchange="setThreadInsightFilter('dimension',this.value)">
           <option value="hour" ${threadInsightFilters.dimension==='hour'?'selected':''}>Hora de publicación</option>
@@ -3780,17 +3780,17 @@ function threadContentIntelligence(){
       </div>
     </div>
     <div class="api-ready-strip"><span>🧵 Threads API <b>activa</b></span><span>📌 Pinterest API <b>pendiente</b></span><span>🛍️ Amazon Reporting <b>pendiente</b></span></div>
-    <div class="thread-insight-grid"><div class="thread-insight-mini"><small>Threads analizados</small><b>${rows.length}</b></div><div class="thread-insight-mini"><small>Con métricas API</small><b>${matched}</b></div><div class="thread-insight-mini"><small>Seguidores estimados</small><b>${totalEstimatedFollowers.toLocaleString()}</b></div><div class="thread-insight-mini"><small>Clics</small><b class="pending-value">API pendiente</b></div></div>
+    <div class="thread-insight-grid"><div class="thread-insight-mini"><small>Threads analizados</small><b>${rows.length}</b></div><div class="thread-insight-mini"><small>Con métricas API</small><b>${matched}</b></div><div class="thread-insight-mini"><small>Seguidores estimados</small><b>${totalEstimatedFollowers.toLocaleString()}</b></div></div>
     ${rows.length?`
       <div class="analysis-section-title"><h3>Comparación por ${esc(threadInsightDimensionLabel())}</h3><small class="muted">Promedio por publicación · ordenado por visualizaciones</small></div>
-      <div class="table-wrap"><table class="table analysis-table"><thead><tr><th>${esc(threadInsightDimensionLabel())}</th><th>Posts</th><th>Views prom.</th><th>Likes prom.</th><th>Resp. prom.</th><th>Reposts prom.</th><th>Seguidores est. prom.</th><th>Clics</th><th>CTR</th></tr></thead><tbody>
-        ${groups.map(g=>`<tr><td><b>${esc(g.name)}</b></td><td>${g.posts}</td><td><b>${g.views.toLocaleString()}</b></td><td>${g.likes.toLocaleString()}</td><td>${g.replies.toLocaleString()}</td><td>${g.reposts.toLocaleString()}</td><td>${g.followers.toLocaleString()}</td><td><span class="api-pending-cell">Pendiente API</span></td><td>—</td></tr>`).join('')}
+      <div class="table-wrap"><table class="table analysis-table"><thead><tr><th>${esc(threadInsightDimensionLabel())}</th><th>Posts</th><th>Views prom.</th><th>Likes prom.</th><th>Resp. prom.</th><th>Reposts prom.</th><th>Seguidores est. prom.</th></tr></thead><tbody>
+        ${groups.map(g=>`<tr><td><b>${esc(g.name)}</b></td><td>${g.posts}</td><td><b>${g.views.toLocaleString()}</b></td><td>${g.likes.toLocaleString()}</td><td>${g.replies.toLocaleString()}</td><td>${g.reposts.toLocaleString()}</td><td>${g.followers.toLocaleString()}</td></tr>`).join('')}
       </tbody></table></div>
-      <div class="analysis-section-title"><h3>Detalle por publicación</h3><small class="muted">Clics y conversiones se añadirán cuando tengamos datos oficiales de Amazon/Pinterest.</small></div>
-      <div class="table-wrap"><table class="table analysis-table"><thead><tr><th>Thread</th><th>Fecha / hora</th><th>Tipo</th><th>Producto</th><th>Imagen</th><th>Views</th><th>Likes</th><th>Respuestas</th><th>Reposts</th><th>Seguidores est.</th><th>Clics</th><th>CTR</th></tr></thead><tbody>
-        ${rows.sort((a,b)=>(+b.views||0)-(+a.views||0)).map(r=>{const fe=threadFollowerEstimate(r);return `<tr><td class="analysis-copy">${esc((r.copy||'Thread sin copy').slice(0,120))}${r._liveMatched?' <span class="analysis-badge">API</span>':''}</td><td>${esc(r.date||'—')}<br><small class="muted">${esc(threadTimeValue(r))}</small></td><td>${esc(threadTypeValue(r))}</td><td>${esc(threadProductName(r))}</td><td><span class="analysis-badge ${threadHasImage(r)?'yes':''}">${threadHasImage(r)?'🖼️ Con imagen':'◻️ Sin imagen'}</span></td><td><b>${(+r.views||0).toLocaleString()}</b></td><td>${(+r.likes||0).toLocaleString()}</td><td>${(+r.replies||0).toLocaleString()}</td><td>${(+r.reposts||0).toLocaleString()}</td><td>${fe.value.toLocaleString()}${fe.source==='estimated'?` <span class="est-confidence">${fe.confidence}</span>`:''}</td><td><span class="api-pending-cell">—</span></td><td>—</td></tr>`}).join('')}
+      <div class="analysis-section-title"><h3>Detalle por publicación</h3><small class="muted">Métricas de rendimiento propias de Threads.</small></div>
+      <div class="table-wrap"><table class="table analysis-table"><thead><tr><th>Thread</th><th>Fecha / hora</th><th>Tipo</th><th>Producto</th><th>Imagen</th><th>Views</th><th>Likes</th><th>Respuestas</th><th>Reposts</th><th>Seguidores est.</th></tr></thead><tbody>
+        ${rows.sort((a,b)=>(+b.views||0)-(+a.views||0)).map(r=>{const fe=threadFollowerEstimate(r);return `<tr><td class="analysis-copy">${esc((r.copy||'Thread sin copy').slice(0,120))}${r._liveMatched?' <span class="analysis-badge">API</span>':''}</td><td>${esc(r.date||'—')}<br><small class="muted">${esc(threadTimeValue(r))}</small></td><td>${esc(threadTypeValue(r))}</td><td>${esc(threadProductName(r))}</td><td><span class="analysis-badge ${threadHasImage(r)?'yes':''}">${threadHasImage(r)?'🖼️ Con imagen':'◻️ Sin imagen'}</span></td><td><b>${(+r.views||0).toLocaleString()}</b></td><td>${(+r.likes||0).toLocaleString()}</td><td>${(+r.replies||0).toLocaleString()}</td><td>${(+r.reposts||0).toLocaleString()}</td><td>${fe.value.toLocaleString()}${fe.source==='estimated'?` <span class="est-confidence">${fe.confidence}</span>`:''}</td></tr>`}).join('')}
       </tbody></table></div>
-      <p class="analysis-note">💡 <b>Ahora:</b> Views, likes, respuestas y reposts vienen de Threads; seguidores se estiman con snapshots. <b>Después:</b> cuando Pinterest apruebe Trial Access y Amazon habilite Reporting/Creators API, el dashboard completará clics, outbound clicks, pedidos, conversiones y earnings sin usar tracking intermedio.</p>
+      <p class="analysis-note">💡 <b>Threads:</b> Views, likes, respuestas y reposts vienen de la API; seguidores obtenidos se muestran como estimación basada en snapshots. Los clics se mantienen únicamente en Pinterest/Amazon cuando sus APIs oficiales estén disponibles.</p>
     `:`<div class="empty"><div class="bubble">🧠</div><p>Publica y registra tus Threads para empezar a comparar hora, tipo, producto e imagen.</p></div>`}
   </div>`;
 }
