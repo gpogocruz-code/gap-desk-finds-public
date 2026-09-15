@@ -957,6 +957,38 @@
 }
 </style>
 
+
+<style id="v181-home-hero-side">
+/* GAP Desk Finds · V1.8.1 · Contenido e Ideas dentro del hero, lado derecho */
+.home-hero-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(270px,.75fr);
+  gap:28px;
+  align-items:center;
+}
+.home-hero-main{min-width:0}
+.home-hero-side{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  min-width:0;
+}
+.home-hero-side .metric{
+  padding:16px 18px;
+  background:rgba(255,255,255,.86);
+  box-shadow:0 10px 28px rgba(131,72,94,.08);
+}
+.home-hero-side .metric .value{font-size:24px}
+.home-hero-side .metric .note{font-size:11px}
+@media(max-width:980px){
+  .home-hero-layout{grid-template-columns:1fr}
+  .home-hero-side{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+  .home-hero-side{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 <div id="app" class="app"></div>
@@ -3977,7 +4009,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.8.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.8.1</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4043,13 +4075,17 @@ function homeView(){
   const pend=state.content.filter(c=>c.status==='Pendiente').length;
   const prep=state.content.filter(c=>c.status==='Preparado').length;
   return `<section class="hero">
-    <span class="pill">🔒 GAP DESK FINDS · PRIVATE CLOUD</span>
-    <h2>Tu contenido y tus métricas, en un solo lugar. 🎀</h2>
-    <div class="hero-actions"><button class="btn primary" onclick="openContent()">＋ Añadir contenido</button><button class="btn secondary" onclick="go('analytics')">Ver analytics →</button></div>
-  </section>
-  <section class="home-quick-metrics">
-    ${metric('Contenido',state.content.length,'guardado en Supabase','📚')}
-    ${metric('Ideas',state.ideas.length,pend+' pendientes · '+prep+' preparados','💡')}
+    <div class="home-hero-layout">
+      <div class="home-hero-main">
+        <span class="pill">🔒 GAP DESK FINDS · PRIVATE CLOUD</span>
+        <h2>Tu contenido y tus métricas, en un solo lugar. 🎀</h2>
+        <div class="hero-actions"><button class="btn primary" onclick="openContent()">＋ Añadir contenido</button><button class="btn secondary" onclick="go('analytics')">Ver analytics →</button></div>
+      </div>
+      <div class="home-hero-side">
+        ${metric('Contenido',state.content.length,'guardado en Supabase','📚')}
+        ${metric('Ideas',state.ideas.length,pend+' pendientes · '+prep+' preparados','💡')}
+      </div>
+    </div>
   </section>
   <section class="home-platform-summary"><div>${threadsLiveSummary()}</div><div>${homePinterestSummary()}</div></section>
   ${amazonEarningsOverviewHome()}`;
