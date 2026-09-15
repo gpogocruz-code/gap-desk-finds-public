@@ -879,6 +879,84 @@
 .api-pending-cell{display:inline-flex;border:1px solid #eadde3;background:#faf7f9;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:800;color:#8d7b83;white-space:nowrap}.pending-value{font-size:12px!important;color:#8d7b83!important}.api-pending-input{color:#8d7b83!important;background:#faf7f9!important;font-weight:800}
 </style>
 
+
+<style id="v180-home-redesign">
+/* GAP Desk Finds · V1.8.0 · Rediseño de Inicio */
+.home-quick-metrics{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin:18px 0 20px;
+}
+.home-platform-summary{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:20px;
+  align-items:stretch;
+}
+.home-platform-summary > *{min-width:0}
+.home-platform-summary .card{height:100%;margin-bottom:0!important}
+.home-amazon-overview{margin-top:20px}
+.home-amazon-chart-card{overflow:hidden}
+.home-amazon-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  flex-wrap:wrap;
+}
+.home-amazon-head h2{font-size:20px;margin:3px 0 4px}
+.home-amazon-stats{display:flex;gap:10px;flex-wrap:wrap}
+.home-amazon-stat{
+  min-width:115px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fffafb;
+}
+.home-amazon-stat small{display:block;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.home-amazon-stat b{display:block;margin-top:4px;font-size:18px}
+.home-chart-legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:16px 0 10px;color:var(--muted);font-size:12px}
+.home-chart-legend span{display:inline-flex;align-items:center;gap:6px}
+.home-chart-line-dot,.home-chart-bar-dot{width:10px;height:10px;border-radius:999px;display:inline-block;background:var(--rose700)}
+.home-chart-bar-dot{border-radius:3px;background:var(--rose200)}
+.home-amazon-chart-wrap{
+  position:relative;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:linear-gradient(180deg,#fff 0%,#fff9fb 100%);
+  padding:10px 12px 4px;
+  min-height:260px;
+}
+.home-amazon-chart-wrap svg{display:block;width:100%;height:245px}
+.home-chart-empty{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+}
+.home-chart-empty div{
+  text-align:center;
+  background:rgba(255,255,255,.88);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:13px 18px;
+  color:var(--muted);
+  box-shadow:0 8px 25px rgba(131,72,94,.08);
+}
+.home-pinterest-summary .platform-kpis{margin-top:16px}
+.home-pinterest-summary .connection-row{margin-bottom:4px}
+@media(max-width:980px){
+  .home-platform-summary{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .home-quick-metrics{grid-template-columns:1fr}
+  .home-amazon-stats{width:100%}
+  .home-amazon-stat{flex:1;min-width:100px}
+}
+</style>
+
 </head>
 <body>
 <div id="app" class="app"></div>
@@ -3888,6 +3966,94 @@ function settingsView(){
   <div class="grid data-grid gap20"><div class="card p24"><div style="font-size:25px">⬇️</div><h3>Exportar backup</h3><p class="muted">Descarga una copia JSON de tus datos actuales en Supabase.</p><button class="btn primary" onclick="exportBackup()">⬇️ Descargar backup</button></div><div class="card p24"><div style="font-size:25px">⬆️</div><h3>Importar backup</h3><p class="muted">Restaura un backup previo. Reemplazará los datos de estas tres colecciones privadas.</p><label class="btn secondary">⬆️ Elegir archivo<input class="hidden" type="file" accept="application/json" onchange="importBackup(this.files[0])"></label></div><div class="card p24"><div style="font-size:25px">🧳</div><h3>Recuperar datos anteriores</h3><p class="muted">Busca el registro editorial previo y lo copia a Supabase si tu nube está vacía.</p><button class="btn secondary" onclick="manualLegacyMigration()">🧳 Buscar datos locales</button></div></div>`;
 }
 
+
+
+// ============================================================
+// GAP DESK FINDS · V1.8.0
+// Rediseño de Inicio: resumen Threads + Pinterest + Amazon Earnings Overview
+// ============================================================
+function shell(body){
+  const [ic,title]=sectionMeta[state.section]||['✨','GAP Desk Finds'];
+  const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
+  return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
+  <aside class="sidebar ${state.sidebar?'open':''}">
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.8.0</small></div>
+    <nav class="nav">${navHTML()}</nav>
+    <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="mobile-menu" onclick="toggleSidebar(true)">☰</button>
+        <div><h1>${ic} ${title}</h1>${subtitle}</div>
+      </div>
+      <div class="topbar-actions">${topAction()}<span class="private-pill">🔒 Privado</span><button class="logout-btn" onclick="logoutDashboard()">Cerrar sesión</button></div>
+    </header>
+    <div class="content">${body}</div>
+  </main>
+  <nav class="mobile-bottom">
+    ${['home','calendar','threads','analytics'].map(id=>`<button class="${state.section===id?'active':''}" onclick="go('${id}')"><span class="mi">${sectionMeta[id][0]}</span>${sectionMeta[id][1]}</button>`).join('')}
+    <button onclick="toggleSidebar(true)"><span class="mi">☰</span>Más</button>
+  </nav>`;
+}
+
+function threadsLiveSummary(){
+  const r=getRemoteMetrics(),t=r.threads||{};
+  if(!Object.keys(t).length)return `<div class="card p20"><div class="connection-row"><div><div class="category">🧵 Threads API</div><h3 style="margin:5px 0 0">Métricas</h3></div><span class="connection-badge off"><span class="dot"></span>Pendiente</span></div><p class="muted">Esperando datos en vivo desde Supabase.</p><button class="btn secondary" onclick="syncNow()">↻ Reintentar conexión</button></div>`;
+  const eng=(+t.views||0)?((+t.likes||0)+(+t.replies||0)+(+t.reposts||0)+(+t.quotes||0))/(+t.views||1)*100:0;
+  const last=r.lastSync?new Date(r.lastSync).toLocaleString('es-EC'):'—';
+  return `<div class="card p20"><div class="connection-row"><div><div class="category">🧵 Threads · @${esc(t.username||'ann_pc_28')}</div><h3 style="margin:5px 0 0">Métricas</h3></div><span class="connection-badge ok"><span class="dot"></span>Conectado</span></div><div class="platform-kpis"><div class="platform-kpi"><small>Visualizaciones</small><b>${(+t.views||0).toLocaleString()}</b></div><div class="platform-kpi"><small>Seguidores</small><b>${(+t.followers||0).toLocaleString()}</b></div><div class="platform-kpi"><small>Likes</small><b>${(+t.likes||0).toLocaleString()}</b></div><div class="platform-kpi"><small>Respuestas</small><b>${(+t.replies||0).toLocaleString()}</b></div><div class="platform-kpi"><small>Engagement</small><b>${pc(eng)}</b></div><div class="platform-kpi"><small>Posts sincronizados</small><b>${(+t.postsCount||0).toLocaleString()}</b></div></div><div class="divider"></div><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><small class="muted">Última sincronización: ${esc(last)}</small><button class="btn ghost" onclick="syncNow()">↻ Refrescar panel</button></div></div>`;
+}
+
+function homePinterestSummary(){
+  const r=getRemoteMetrics(),p=r.pinterest||{},has=Object.keys(p).length>0;
+  const imp=+p.impressions||0,saves=+p.saves||0,pinClicks=+(p.pinClicks??p.pin_clicks)||0,outbound=+(p.outboundClicks??p.outbound_clicks)||0,eng=+p.engagements||0;
+  const rate=imp?eng/imp*100:0;
+  return `<div class="card p20 home-pinterest-summary"><div class="connection-row"><div><div class="category">📌 Pinterest</div><h3 style="margin:5px 0 0">Métricas</h3></div>${connectionBadge(has?'connected':'pending')}</div><div class="platform-kpis"><div class="platform-kpi"><small>Impresiones</small><b>${has?imp.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Guardados</small><b>${has?saves.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Pin clicks</small><b>${has?pinClicks.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Outbound clicks</small><b>${has?outbound.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Engagement</small><b>${has?pc(rate):'—'}</b></div><div class="platform-kpi"><small>Engagements</small><b>${has?eng.toLocaleString():'—'}</b></div></div><div class="divider"></div><small class="muted">${has?'Fuente: Pinterest API → Supabase.':'Trial Access pendiente. Este resumen se llenará automáticamente cuando Pinterest habilite la API.'}</small></div>`;
+}
+
+function amazonHomeHistory(){
+  const a=getRemoteMetrics().amazon||{};
+  const candidates=[a.history,a.daily,a.earningsOverview,a.earnings_history,a.dailyMetrics];
+  const raw=candidates.find(Array.isArray)||[];
+  return raw.map((x,i)=>({
+    label:String(x.label??x.date??x.day??x.period??(i+1)),
+    earnings:+(x.earnings??x.commissions??x.commission??x.amount??0)||0,
+    clicks:+(x.clicks??x.click_count??0)||0
+  })).slice(-30);
+}
+
+function amazonEarningsOverviewHome(){
+  const r=getRemoteMetrics(),a=r.amazon||{},rows=amazonHomeHistory();
+  const has=rows.length>0;
+  const totalEarnings=Object.keys(a).length?(+a.earnings||rows.reduce((s,x)=>s+x.earnings,0)):0;
+  const totalClicks=Object.keys(a).length?(+a.clicks||rows.reduce((s,x)=>s+x.clicks,0)):0;
+  const W=900,H=220,L=48,R=40,T=18,B=34,plotW=W-L-R,plotH=H-T-B;
+  const n=Math.max(rows.length,1),step=plotW/n;
+  const maxE=Math.max(1,...rows.map(x=>x.earnings));
+  const maxC=Math.max(1,...rows.map(x=>x.clicks));
+  const bars=rows.map((x,i)=>{const h=(x.clicks/maxC)*plotH;const bw=Math.max(4,Math.min(18,step*.42));const bx=L+i*step+(step-bw)/2;const by=T+plotH-h;return `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="#f4cfda" opacity=".9"></rect>`}).join('');
+  const points=rows.map((x,i)=>{const px=L+i*step+step/2;const py=T+plotH-(x.earnings/maxE)*plotH;return `${px.toFixed(1)},${py.toFixed(1)}`}).join(' ');
+  const labels=rows.length?[[0,rows[0].label],[Math.floor((rows.length-1)/2),rows[Math.floor((rows.length-1)/2)].label],[rows.length-1,rows[rows.length-1].label]].filter((v,i,a)=>a.findIndex(z=>z[0]===v[0])===i):[];
+  const grid=[0,.25,.5,.75,1].map(q=>{const y=T+plotH-(q*plotH);return `<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="#f2e1e7" stroke-width="1"></line>`}).join('');
+  return `<section class="home-amazon-overview"><div class="card p20 home-amazon-chart-card"><div class="home-amazon-head"><div><div class="category">🛍️ AMAZON AFILIADOS</div><h2>Earnings Overview</h2><p class="muted" style="margin:0">Earnings y clicks del periodo disponible.</p></div><div class="home-amazon-stats"><div class="home-amazon-stat"><small>Earnings</small><b>${Object.keys(a).length?money(totalEarnings):'—'}</b></div><div class="home-amazon-stat"><small>Clicks</small><b>${Object.keys(a).length?totalClicks.toLocaleString():'—'}</b></div></div></div><div class="home-chart-legend"><span><i class="home-chart-line-dot"></i>Earnings</span><span><i class="home-chart-bar-dot"></i>Clicks</span><span style="margin-left:auto">${has?'Datos de Amazon Reporting':'Reporting API pendiente'}</span></div><div class="home-amazon-chart-wrap"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Amazon Earnings Overview">${grid}<line x1="${L}" y1="${T+plotH}" x2="${W-R}" y2="${T+plotH}" stroke="#d9c5cd" stroke-width="1.2"></line>${bars}${points?`<polyline points="${points}" fill="none" stroke="#a95d79" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>`:''}${labels.map(([idx,lbl])=>{const x=L+idx*step+step/2;return `<text x="${x}" y="${H-9}" text-anchor="middle" font-size="11" fill="#987e88">${esc(lbl).slice(0,12)}</text>`}).join('')}</svg>${has?'':`<div class="home-chart-empty"><div><b>Amazon Reporting API pendiente</b><br><small>El gráfico se llenará automáticamente cuando tengamos acceso.</small></div></div>`}</div></div></section>`;
+}
+
+function homeView(){
+  const pend=state.content.filter(c=>c.status==='Pendiente').length;
+  const prep=state.content.filter(c=>c.status==='Preparado').length;
+  return `<section class="hero">
+    <span class="pill">🔒 GAP DESK FINDS · PRIVATE CLOUD</span>
+    <h2>Tu contenido y tus métricas, en un solo lugar. 🎀</h2>
+    <div class="hero-actions"><button class="btn primary" onclick="openContent()">＋ Añadir contenido</button><button class="btn secondary" onclick="go('analytics')">Ver analytics →</button></div>
+  </section>
+  <section class="home-quick-metrics">
+    ${metric('Contenido',state.content.length,'guardado en Supabase','📚')}
+    ${metric('Ideas',state.ideas.length,pend+' pendientes · '+prep+' preparados','💡')}
+  </section>
+  <section class="home-platform-summary"><div>${threadsLiveSummary()}</div><div>${homePinterestSummary()}</div></section>
+  ${amazonEarningsOverviewHome()}`;
+}
 
 initSecureDashboard();
 </script>
