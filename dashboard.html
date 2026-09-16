@@ -991,7 +991,7 @@
 
 
 <style id="v190-idea-bank">
-/* GAP Desk Finds · V1.9.2 · Banco de Ideas estratégico */
+/* GAP Desk Finds · V1.10.0 · Banco de Ideas estratégico */
 .idea-bank-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
 .idea-bank-head h2{margin:0;font-size:28px}
 .idea-bank-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -1031,6 +1031,28 @@
 .status-publicada{background:#e6f8f0;color:var(--green)}
 @media(max-width:1180px){.idea-kanban{grid-template-columns:repeat(4,minmax(280px,1fr))}.idea-bank-summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.idea-bank-summary{grid-template-columns:1fr 1fr}.idea-modal-grid{grid-template-columns:1fr}.idea-modal-grid .wide{grid-column:auto}.idea-bank-toolbar .search{min-width:100%}}
+</style>
+
+
+<style id="v1100-calendar-styles">
+/* GAP Desk Finds · V1.10.0 · Calendario */
+.month-event{position:relative;display:flex;align-items:flex-start;gap:6px;padding-right:20px}
+.month-event.threads{background:rgba(15,15,18,.10)!important;color:#151515!important;border:1px solid rgba(15,15,18,.06)}
+.month-event.pinterest{background:rgba(230,0,35,.10)!important;color:#9d0018!important;border:1px solid rgba(230,0,35,.08)}
+.calendar-status-dot{width:8px;height:8px;border-radius:50%;flex:0 0 8px;margin-top:2px;box-shadow:0 0 0 2px rgba(255,255,255,.65)}
+.calendar-status-dot.published{background:#22c55e}
+.calendar-status-dot.pending{background:#f2c94c}
+.calendar-add-popover{position:fixed;z-index:500;width:min(360px,calc(100vw - 24px));max-height:420px;overflow:auto;padding:8px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 55px rgba(48,39,44,.22)}
+.calendar-add-popover .menu-title{padding:9px 10px 6px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:900}
+.calendar-add-popover .menu-sep{height:1px;background:var(--line);margin:5px 4px}
+.calendar-add-option{width:100%;border:0;background:transparent;text-align:left;padding:10px;border-radius:13px;cursor:pointer;display:block;color:var(--text)}
+.calendar-add-option:hover{background:var(--rose50)}
+.calendar-add-option strong{display:block;font-size:12px;line-height:1.25}
+.calendar-add-option small{display:block;color:var(--muted);margin-top:3px;font-size:10px}
+.calendar-add-option.new{background:var(--rose100);color:var(--rose800);font-weight:900}
+.calendar-empty-planned{padding:12px 10px;color:var(--muted);font-size:11px}
+.pub-card .calendar-pub-line{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:10px;color:var(--muted)}
+@media(max-width:620px){.calendar-add-popover{width:calc(100vw - 20px)}}
 </style>
 
 </head>
@@ -4077,7 +4099,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.9.2</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.10.0</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4161,7 +4183,7 @@ function homeView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.9.2
+// GAP DESK FINDS · V1.10.0
 // Banco de Ideas: Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado
 // ============================================================
 const IDEA_STATUSES=['Idea','En creación','Planificada','Publicada'];
@@ -4269,6 +4291,199 @@ async function convertIdea(id){
   });
   await refresh();state.section='calendar';render();openContent(newId);toast('Idea enviada al calendario ✓');
 }
+
+
+// ============================================================
+// GAP DESK FINDS · V1.10.0
+// Calendario funcional + Banco de Ideas planificadas
+// ============================================================
+
+if (typeof THREAD_TYPES !== 'undefined' && !THREAD_TYPES.includes('Inspiración / aesthetic')) {
+  THREAD_TYPES.splice(1, 0, 'Inspiración / aesthetic');
+}
+
+function normalizedContentStatus(value){
+  return String(value||'')==='Publicado' ? 'Publicado' : 'Pendiente';
+}
+
+function plannedIdeasForCalendar(){
+  return state.ideas.filter(i=>{
+    if(ideaStatusValue(i)!=='Planificada') return false;
+    const linkedId=Number(i.linkedContentId||0);
+    if(linkedId && state.content.some(c=>Number(c.id)===linkedId)) return false;
+    if(state.content.some(c=>Number(c.sourceIdeaId||0)===Number(i.id))) return false;
+    return true;
+  });
+}
+
+function closeCalendarAddMenu(){
+  document.querySelectorAll('.calendar-add-popover').forEach(el=>el.remove());
+}
+
+function showCalendarAddMenu(date='',event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  closeCalendarAddMenu();
+  const anchor=event?.currentTarget;
+  const ideas=plannedIdeasForCalendar();
+  const menu=document.createElement('div');
+  menu.className='calendar-add-popover';
+  menu.onclick=e=>e.stopPropagation();
+  const safeDate=String(date||'');
+
+  menu.innerHTML=`
+    <button class="calendar-add-option new" type="button" data-action="new">＋ Crear publicación nueva</button>
+    <div class="menu-sep"></div>
+    <div class="menu-title">🧠 Banco de Ideas · Planificadas</div>
+    ${ideas.length?ideas.map(i=>{
+      const platform=ideaPlatformValue(i);
+      const topic=ideaTopicValue(i)||ideaHookValue(i)||'Idea sin título';
+      const hook=ideaHookValue(i);
+      return `<button class="calendar-add-option" type="button" data-idea="${Number(i.id)}"><strong>${esc(topic)}</strong><small>${esc(platform)}${hook&&hook!==topic?' · '+esc(hook.slice(0,70)):''}</small></button>`;
+    }).join(''):`<div class="calendar-empty-planned">No tienes ideas en estado 📅 Planificada disponibles para asignar.</div>`}
+  `;
+  document.body.appendChild(menu);
+
+  const rect=anchor?.getBoundingClientRect();
+  const w=Math.min(360,window.innerWidth-24);
+  let left=rect ? rect.right-w : window.innerWidth-w-20;
+  let top=rect ? rect.bottom+8 : 70;
+  left=Math.max(12,Math.min(left,window.innerWidth-w-12));
+  const estimatedH=Math.min(menu.scrollHeight||320,420);
+  if(top+estimatedH>window.innerHeight-12 && rect) top=Math.max(12,rect.top-estimatedH-8);
+  menu.style.left=`${left}px`;
+  menu.style.top=`${top}px`;
+
+  menu.querySelector('[data-action="new"]')?.addEventListener('click',()=>{
+    closeCalendarAddMenu();
+    if(safeDate) openContentForDate(safeDate);
+    else openContent(null,'Threads');
+  });
+  menu.querySelectorAll('[data-idea]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=Number(btn.dataset.idea);
+      closeCalendarAddMenu();
+      openPlannedIdeaForCalendar(id,safeDate);
+    });
+  });
+  setTimeout(()=>document.addEventListener('click',closeCalendarAddMenu,{once:true}),0);
+}
+
+function openPlannedIdeaForCalendar(id,date=''){
+  const i=state.ideas.find(x=>Number(x.id)===Number(id));
+  if(!i)return;
+  const platform=ideaPlatformValue(i)==='Pinterest'?'Pinterest':'Threads';
+  contentModal({
+    date:date||today(),dayLabel:dayName(date||today()),platform,status:'Pendiente',
+    objective:ideaObjectiveValue(i)||'Alcance',type:ideaFormatValue(i),
+    topic:ideaTopicValue(i),copy:ideaHookValue(i),productId:i.productId||'',
+    notes:i.notes||'',sourceIdeaId:Number(i.id),threadType:'',publicationTime:''
+  });
+}
+
+function topAction(){
+  if(state.section==='calendar')return `<button class="btn primary" onclick="showCalendarAddMenu('',event)">＋ <span class="desktop-label">Nueva publicación</span> ▾</button>`;
+  if(state.section==='threads')return `<button class="btn primary" onclick="openContent(null,'Threads')">＋ <span class="desktop-label">Nueva publicación</span></button>`;
+  if(state.section==='pinterest')return `<button class="btn primary" onclick="openContent(null,'Pinterest')">＋ <span class="desktop-label">Nueva publicación</span></button>`;
+  if(state.section==='amazon')return `<button class="btn primary" onclick="openProduct()">＋ <span class="desktop-label">Nuevo producto</span></button>`;
+  if(state.section==='ideas')return `<button class="btn primary" onclick="openIdea()">＋ <span class="desktop-label">Nueva idea</span></button>`;
+  return '';
+}
+
+function shell(body){
+  const [ic,title]=sectionMeta[state.section]||['✨','GAP Desk Finds'];
+  const subtitle=(state.section==='home'||state.section==='calendar')?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
+  return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
+  <aside class="sidebar ${state.sidebar?'open':''}">
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.10.0</small></div>
+    <nav class="nav">${navHTML()}</nav>
+    <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:10px"><button class="mobile-menu" onclick="toggleSidebar(true)">☰</button><div><h1>${ic} ${title}</h1>${subtitle}</div></div>
+      <div class="topbar-actions">${topAction()}<span class="private-pill">🔒 Privado</span><button class="logout-btn" onclick="logoutDashboard()">Cerrar sesión</button></div>
+    </header>
+    <div class="content">${body}</div>
+  </main>
+  <nav class="mobile-bottom">${['home','calendar','threads','analytics'].map(id=>`<button class="${state.section===id?'active':''}" onclick="go('${id}')"><span class="mi">${sectionMeta[id][0]}</span>${sectionMeta[id][1]}</button>`).join('')}<button onclick="toggleSidebar(true)"><span class="mi">☰</span>Más</button></nav>`;
+}
+
+function monthlyCalendar(){
+  const base=new Date();base.setDate(1);base.setMonth(base.getMonth()+calendarMonthOffset);base.setHours(12,0,0,0);
+  const year=base.getFullYear(),month=base.getMonth(),first=new Date(year,month,1,12);
+  const startDay=(first.getDay()+6)%7,gridStart=new Date(first);gridStart.setDate(first.getDate()-startDay);
+  const cells=Array.from({length:42},(_,i)=>{const d=new Date(gridStart);d.setDate(gridStart.getDate()+i);return d});
+  const title=base.toLocaleDateString('es-EC',{month:'long',year:'numeric'}),todayIso=isoLocalDate(new Date());
+
+  return `<div class="section-head"><div><h2 style="text-transform:capitalize">${esc(title)}</h2></div>
+    <div style="display:flex;gap:7px"><button class="icon-btn" onclick="shiftCalendarMonth(-1)">‹</button><button class="btn secondary" onclick="resetCalendarMonth()">Hoy</button><button class="icon-btn" onclick="shiftCalendarMonth(1)">›</button></div></div>
+    <div class="month-shell"><div class="month-grid">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<div class="month-weekday">${x}</div>`).join('')}
+    ${cells.map(d=>{const iso=isoLocalDate(d),items=calendarVisibleItems(iso),other=d.getMonth()!==month;return `<div class="month-day ${other?'other':''} ${iso===todayIso?'today':''}">
+      <div class="month-day-head"><b>${d.getDate()}</b><button class="month-add" onclick="showCalendarAddMenu('${iso}',event)">＋</button></div>
+      ${items.slice(0,3).map(c=>`<button class="month-event ${c.platform==='Threads'?'threads':c.platform==='Pinterest'?'pinterest':'other'}" onclick="openContent(${c.id})"><span class="calendar-status-dot ${c.status==='Publicado'?'published':'pending'}" title="${c.status==='Publicado'?'Publicado':'Pendiente'}"></span><span>${esc((c.copy||c.pinterestTitle||c.type||'Contenido').slice(0,46))}</span></button>`).join('')}
+      ${items.length>3?`<div class="month-more">+${items.length-3} más</div>`:''}
+    </div>`}).join('')}</div></div>`;
+}
+
+function pubCard(c){
+  const prod=state.products.find(p=>Number(p.id)===Number(c.productId));
+  return `<button class="pub-card" onclick="openContent(${c.id})"><div class="top"><span class="platform">${esc(c.platform)}</span></div><p>${esc(c.copy||c.pinterestTitle||c.type||'Sin copy')}</p><div class="calendar-pub-line"><span class="calendar-status-dot ${c.status==='Publicado'?'published':'pending'}"></span><span>${c.status==='Publicado'?'Publicado':'Pendiente'}</span></div><div class="objective-inline">${objectiveBadge(c.objective)}</div>${prod?`<small class="muted">🛍️ ${esc(prod.name)}</small>`:''}</button>`;
+}
+
+function weeklyCalendar(){
+  const days=weekDays();
+  return `<div class="section-head"><div><h2>Semana actual</h2><p>Planifica de lunes a domingo y abre cualquier tarjeta para editarla.</p></div><span class="pill">${days[0].short} — ${days[6].short}</span></div>
+    <div class="grid week">${days.map(d=>{const items=calendarVisibleItems(d.iso);return `<div class="card day"><div class="day-head"><div><b>${esc(d.long)}</b><small>${esc(d.short)}</small></div><button class="icon-btn" onclick="showCalendarAddMenu('${d.iso}',event)">＋</button></div>${items.length?items.map(c=>pubCard(c)).join(''):`<button class="empty-add" onclick="showCalendarAddMenu('${d.iso}',event)">＋ Añadir contenido</button>`}</div>`}).join('')}</div>`;
+}
+
+function openContent(id=null,defaultPlatform=''){
+  const c=id?state.content.find(x=>Number(x.id)===Number(id)):{date:today(),dayLabel:dayName(today()),platform:defaultPlatform||'Threads',type:'',copy:'',topic:'',status:'Pendiente',objective:''};
+  contentModal(c);
+}
+function openContentForDate(date){contentModal({date,dayLabel:dayName(date),platform:'Threads',type:'',copy:'',topic:'',status:'Pendiente',objective:''})}
+
+function contentModal(c){
+  c=c.platform==='Threads'?hydrateThreadRecord(c):c;
+  const isP=c.platform==='Pinterest',isT=c.platform==='Threads',hasImg=threadHasImage(c),estimated=isT?threadFollowerEstimate(c):{value:0},status=normalizedContentStatus(c.status);
+  modal(c.id?'Editar publicación':'Nueva publicación',`<form class="modal-body" onsubmit="saveContent(event,${c.id||'null'})">
+    <input id="c_sourceIdeaId" type="hidden" value="${val(c.sourceIdeaId||'')}">
+    <div class="grid field-grid-3 gap12">${field('Fecha',`<input id="c_date" type="date" class="input" value="${val(c.date||today())}" required>`)}${field('Plataforma',`<select id="c_platform" class="input" onchange="rerenderContentModal(${c.id||'null'})">${['Threads','Pinterest','Instagram','TikTok','Otro'].map(x=>`<option ${c.platform===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Estado',`<select id="c_status" class="input"><option value="Pendiente" ${status==='Pendiente'?'selected':''}>Pendiente</option><option value="Publicado" ${status==='Publicado'?'selected':''}>Publicado</option></select>`)}</div>
+    ${isT?`<div class="thread-meta-fields">${field('Hora de publicación',`<input id="c_time" type="time" class="input" value="${val(c.publicationTime||(!c.id?'':threadTimeValue(c).replace('—','')))}">`)}${field('Tipo de Thread',`<select id="c_threadType" class="input"><option value="">Selecciona un tipo</option>${THREAD_TYPES.map(x=>`<option value="${esc(x)}" ${(c.threadType||'')===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`)}${field('Visual del Thread',`<select id="c_hasImage" class="input"><option value="no" ${!hasImg?'selected':''}>Sin imagen</option><option value="yes" ${hasImg?'selected':''}>Con imagen</option></select>`)}</div>`:''}
+    <div class="grid field-grid-3 gap12">${field('Objetivo del contenido',`<select id="c_objective" class="input" required><option value="">Selecciona un objetivo</option>${CONTENT_OBJECTIVES.map(x=>`<option value="${x}" ${objectiveSelectValue(c)===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field(isT?'Formato / estilo':'Tipo / formato',`<input id="c_type" class="input" value="${val(c.type)}" placeholder="${isT?'Texto, foto real, carrusel…':'Foto real, pregunta, carrusel…'}">`)}${field('Tema',`<input id="c_topic" class="input" value="${val(c.topic)}" placeholder="Real setup, organización…">`)}</div>
+    ${field(isP?'Copy / nota interna':'Copy',`<textarea id="c_copy" class="input" placeholder="Texto de la publicación…">${val(c.copy)}</textarea>`)}
+    <div class="grid field-grid-2 gap12">${field(isT?'Producto mencionado':'Producto relacionado',`<select id="c_product" class="input"><option value="">Sin producto</option>${state.products.map(p=>`<option value="${p.id}" ${Number(c.productId)===Number(p.id)?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`)}${field('Imagen',`<input id="c_image_file" type="file" accept="image/*" class="input" onchange="previewContentImage(this)">`)}</div>
+    ${c.image?`<img id="c_preview" class="image-preview" src="${c.image}"><input type="hidden" id="c_image" value="${c.image}">`:`<img id="c_preview" class="image-preview hidden"><input type="hidden" id="c_image">`}
+    ${isP?`<div class="subbox"><b style="color:var(--rose700)">Campos Pinterest</b>${field('Título',`<input id="c_ptitle" class="input" value="${val(c.pinterestTitle)}">`)}${field('Descripción',`<textarea id="c_pdesc" class="input">${val(c.pinterestDescription)}</textarea>`)}<div class="grid field-grid-2 gap12">${field('Keywords',`<input id="c_keywords" class="input" value="${val(c.keywords)}">`)}${field('Alt text',`<input id="c_alt" class="input" value="${val(c.altText)}">`)}</div><div class="api-pending-box"><b>📌 Métricas Pinterest preparadas</b><span>Impresiones · Guardados · Pin clicks · Outbound clicks</span><small>Se completarán automáticamente cuando se apruebe Trial Access.</small></div></div>`:''}
+    ${isT?`<div class="subbox"><b>Métricas${c._liveMatched?' · 🟢 sincronizadas desde Threads API':''}</b><div class="thread-metrics-fields">${field('Visualizaciones',`<input id="c_views" type="number" min="0" class="input" value="${num(c.views)}">`)}${field('Likes',`<input id="c_likes" type="number" min="0" class="input" value="${num(c.likes)}">`)}${field('Respuestas',`<input id="c_replies" type="number" min="0" class="input" value="${num(c.replies)}">`)}${field('Reposts',`<input id="c_reposts" type="number" min="0" class="input" value="${num(c.reposts)}">`)}${field('Quotes',`<input id="c_quotes" type="number" min="0" class="input" value="${num(c.quotes)}">`)}${field('Seguidores estimados',`<input class="input" value="${estimated.value}" readonly title="Estimación por snapshots">`)}</div></div>`:''}
+    ${field('Notas: qué funcionó / observaciones',`<textarea id="c_notes" class="input">${val(c.notes)}</textarea>`)}
+    <div class="modal-actions">${c.id?`<button type="button" class="btn danger" onclick="deleteContent(${c.id})">Eliminar</button>`:''}<button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary">Guardar publicación</button></div>
+  </form>`);
+}
+
+function rerenderContentModal(id){
+  const original=id?state.content.find(x=>Number(x.id)===Number(id)):{},g=n=>document.getElementById(n),p=g('c_platform').value;
+  contentModal({...original,date:g('c_date').value,platform:p,status:g('c_status').value,objective:g('c_objective')?.value||'',type:g('c_type')?.value||'',topic:g('c_topic')?.value||'',copy:g('c_copy')?.value||'',productId:+g('c_product')?.value||undefined,image:g('c_image')?.value||undefined,sourceIdeaId:+g('c_sourceIdeaId')?.value||original.sourceIdeaId||undefined,publicationTime:g('c_time')?.value||original.publicationTime||'',threadType:g('c_threadType')?.value||original.threadType||'',hasImage:g('c_hasImage')?g('c_hasImage').value==='yes':original.hasImage});
+}
+
+async function syncIdeaFromCalendarContent(contentObj,contentId){
+  const sourceIdeaId=Number(contentObj?.sourceIdeaId||0);if(!sourceIdeaId)return false;
+  const idea=state.ideas.find(i=>Number(i.id)===sourceIdeaId);if(!idea)return false;
+  const published=contentObj.status==='Publicado',now=new Date().toISOString();
+  await put('ideas',{...idea,id:idea.id,status:published?'Publicada':'Planificada',linkedContentId:Number(contentId)||idea.linkedContentId||'',scheduledDate:contentObj.date||idea.scheduledDate||'',publishedContentId:published?(Number(contentId)||idea.publishedContentId||''):(idea.publishedContentId||''),publishedDate:published?(contentObj.date||idea.publishedDate||''):(idea.publishedDate||''),publishedAt:published?now:(idea.publishedAt||''),updatedAt:now});
+  return true;
+}
+
+async function saveContent(e,id){
+  e.preventDefault();
+  const g=n=>document.getElementById(n),p=g('c_platform').value,existing=id?state.content.find(x=>Number(x.id)===Number(id)):{},sourceIdeaId=+g('c_sourceIdeaId')?.value||existing.sourceIdeaId||undefined;
+  const obj={...existing,date:g('c_date').value,dayLabel:id?(existing?.dayLabel||dayName(g('c_date').value)):dayName(g('c_date').value),platform:p,status:g('c_status').value,objective:g('c_objective').value,type:g('c_type').value,topic:g('c_topic').value,copy:g('c_copy').value,productId:+g('c_product').value||undefined,image:g('c_image').value||undefined,notes:g('c_notes').value,sourceIdeaId};
+  if(p==='Pinterest')Object.assign(obj,{pinterestTitle:g('c_ptitle')?.value||obj.pinterestTitle||'',pinterestDescription:g('c_pdesc')?.value||obj.pinterestDescription||'',keywords:g('c_keywords')?.value||obj.keywords||'',altText:g('c_alt')?.value||obj.altText||''});
+  else if(p==='Threads')Object.assign(obj,{publicationTime:g('c_time')?.value||obj.publicationTime||'',threadType:g('c_threadType')?.value||obj.threadType||'',hasImage:g('c_hasImage')?g('c_hasImage').value==='yes':!!obj.image,views:+g('c_views')?.value||0,likes:+g('c_likes')?.value||0,replies:+g('c_replies')?.value||0,reposts:+g('c_reposts')?.value||0,quotes:+g('c_quotes')?.value||0});
+  let contentId;if(id){obj.id=id;await put('content',obj);contentId=id}else contentId=await add('content',obj);
+  const linked=await syncIdeaFromCalendarContent(obj,contentId);
+  closeModal();await refresh();render();toast(linked&&obj.status==='Publicado'?'Publicación guardada · idea movida a ✅ Publicada':'Publicación guardada ✓');
+}
+
 
 initSecureDashboard();
 </script>
