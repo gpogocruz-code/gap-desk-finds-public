@@ -989,6 +989,50 @@
 }
 </style>
 
+
+<style id="v190-idea-bank">
+/* GAP Desk Finds · V1.9.0 · Banco de Ideas estratégico */
+.idea-bank-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
+.idea-bank-head h2{margin:0;font-size:28px}
+.idea-bank-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.idea-bank-summary{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px;margin:14px 0 20px}
+.idea-stage-summary{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:0 8px 24px rgba(131,72,94,.05)}
+.idea-stage-summary small{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:#a4949c;font-weight:900}
+.idea-stage-summary b{display:block;font-size:22px;margin-top:4px}
+.idea-bank-toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap}
+.idea-bank-toolbar .search{margin:0;max-width:520px;flex:1;min-width:260px}
+.idea-kanban{display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:14px;align-items:start;overflow-x:auto;padding-bottom:8px}
+.idea-column{background:rgba(255,255,255,.58);border:1px solid var(--line);border-radius:22px;min-height:420px;padding:12px;transition:.18s}
+.idea-column.drag-over{background:#fff0f5;border-color:var(--rose400);box-shadow:0 0 0 3px rgba(233,166,189,.16)}
+.idea-column-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 3px 12px}
+.idea-column-title{font-weight:900;font-size:14px}
+.idea-column-count{min-width:26px;height:26px;border-radius:999px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-size:11px;font-weight:900;color:var(--rose700)}
+.idea-column-list{display:grid;gap:10px}
+.idea-kanban-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 8px 20px rgba(131,72,94,.05);cursor:grab}
+.idea-kanban-card:active{cursor:grabbing}
+.idea-kanban-card.dragging{opacity:.48}
+.idea-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+.idea-card-tags{display:flex;gap:6px;flex-wrap:wrap}
+.idea-tag{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;background:var(--rose50);border:1px solid var(--line);font-size:9px;font-weight:900;color:var(--rose700)}
+.idea-tag.platform{background:#f8fafc;color:#64748b}
+.idea-kanban-card h3{font-size:15px;line-height:1.28;margin:7px 0 6px}
+.idea-hook{font-size:12px;line-height:1.45;color:#66575f;background:#fff8fb;border-left:3px solid var(--rose300);padding:8px 9px;border-radius:0 10px 10px 0;margin:9px 0}
+.idea-meta-line{font-size:11px;color:var(--muted);margin-top:7px;display:flex;gap:6px;align-items:flex-start}
+.idea-meta-line b{color:#67575f}
+.idea-card-actions{display:flex;gap:7px;margin-top:12px;align-items:center}
+.idea-card-actions .idea-status-select{flex:1;min-width:0;border:1px solid var(--line);background:#fff;border-radius:11px;padding:7px 8px;font-size:11px;font-weight:800;color:#67575f}
+.idea-empty-column{border:1px dashed var(--rose300);border-radius:15px;padding:20px 8px;text-align:center;color:#b39ba6;font-size:11px}
+.idea-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.idea-modal-grid .wide{grid-column:1/-1}
+.idea-flow-help{padding:12px 14px;border-radius:15px;background:var(--rose50);border:1px solid var(--line);font-size:12px;color:#765f69}
+.idea-flow-help b{color:var(--rose700)}
+.status-planificada{background:#fff4d7;color:#a16207}
+.status-en-creacion{background:#eeeafe;color:#6d52a3}
+.status-publicada{background:#e6f8f0;color:var(--green)}
+@media(max-width:1180px){.idea-kanban{grid-template-columns:repeat(4,minmax(280px,1fr))}.idea-bank-summary{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.idea-bank-summary{grid-template-columns:1fr 1fr}.idea-modal-grid{grid-template-columns:1fr}.idea-modal-grid .wide{grid-column:auto}.idea-bank-toolbar .search{min-width:100%}}
+</style>
+
 </head>
 <body>
 <div id="app" class="app"></div>
@@ -4009,7 +4053,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.8.1</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.9.0</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4083,12 +4127,110 @@ function homeView(){
       </div>
       <div class="home-hero-side">
         ${metric('Contenido',state.content.length,'guardado en Supabase','📚')}
-        ${metric('Ideas',state.ideas.length,pend+' pendientes · '+prep+' preparados','💡')}
+        ${metric('Ideas',state.ideas.length,state.ideas.filter(i=>ideaStatusValue(i)==='Planificada').length+' planificadas · '+state.ideas.filter(i=>ideaStatusValue(i)==='En creación').length+' en creación','💡')}
       </div>
     </div>
   </section>
   <section class="home-platform-summary"><div>${threadsLiveSummary()}</div><div>${homePinterestSummary()}</div></section>
   ${amazonEarningsOverviewHome()}`;
+}
+
+
+// ============================================================
+// GAP DESK FINDS · V1.9.0
+// Banco de Ideas: Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado
+// ============================================================
+const IDEA_STATUSES=['Idea','Planificada','En creación','Publicada'];
+const IDEA_PLATFORMS=['Threads','Pinterest','Ambas'];
+let ideaSearchQuery='';
+let draggedIdeaId=null;
+
+function ideaStatusValue(i){
+  const raw=String(i?.status||'Idea').trim();
+  if(IDEA_STATUSES.includes(raw))return raw;
+  if(/public/i.test(raw))return 'Publicada';
+  if(/crea|prepar/i.test(raw))return 'En creación';
+  if(/plan|pend/i.test(raw))return 'Planificada';
+  return 'Idea';
+}
+function ideaPlatformValue(i){
+  const raw=String(i?.platform||'').trim();
+  if(IDEA_PLATFORMS.includes(raw))return raw;
+  if(String(i?.category||'').toLowerCase()==='pinterest')return 'Pinterest';
+  return 'Threads';
+}
+function ideaPillarValue(i){return String(i?.pilar??i?.pillar??'').trim()}
+function ideaFormatValue(i){
+  if(i?.formato!=null)return String(i.formato).trim();
+  if(i?.format!=null)return String(i.format).trim();
+  const c=String(i?.category||'').trim();
+  return ['Threads','Pinterest'].includes(c)?'':c;
+}
+function ideaTopicValue(i){return String(i?.tema??i?.topic??i?.title??'').trim()}
+function ideaHookValue(i){return String(i?.hook??i?.title??'').trim()}
+function ideaObjectiveValue(i){return String(i?.objective??i?.contentObjective??'').trim()}
+function ideaProduct(i){return state.products.find(p=>Number(p.id)===Number(i?.productId))}
+function ideaStatusClass(s){return s==='Planificada'?'status status-planificada':s==='En creación'?'status status-en-creacion':s==='Publicada'?'status status-publicada':'status status-idea'}
+function ideaStageIcon(s){return s==='Idea'?'💡':s==='Planificada'?'📅':s==='En creación'?'✍️':'✅'}
+function ideaSearchMatch(i,q){
+  if(!q)return true;
+  const p=ideaProduct(i);
+  return [ideaPillarValue(i),ideaFormatValue(i),ideaTopicValue(i),ideaHookValue(i),ideaPlatformValue(i),ideaObjectiveValue(i),p?.name,i?.notes].join(' ').toLowerCase().includes(q.toLowerCase());
+}
+function setIdeaSearch(v){ideaSearchQuery=v||'';render()}
+
+function ideasView(){
+  const rows=state.ideas.filter(i=>ideaSearchMatch(i,ideaSearchQuery));
+  const counts=Object.fromEntries(IDEA_STATUSES.map(s=>[s,state.ideas.filter(i=>ideaStatusValue(i)===s).length]));
+  return `<div class="idea-bank-head"><div><h2>🧠 Banco de Ideas</h2><p>Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado.</p></div></div>
+  <div class="idea-bank-summary">${IDEA_STATUSES.map(s=>`<div class="idea-stage-summary"><small>${ideaStageIcon(s)} ${esc(s)}</small><b>${counts[s]||0}</b></div>`).join('')}</div>
+  <div class="idea-bank-toolbar"><div class="search"><span>⌕</span><input class="input" value="${val(ideaSearchQuery)}" placeholder="Buscar por pilar, tema, hook, producto…" oninput="setIdeaSearch(this.value)"></div><div class="pill">Arrastra las tarjetas entre estados</div></div>
+  ${!state.ideas.length?`<div class="card empty"><div class="bubble">💡</div><p>Tu banco de ideas está vacío.</p><button class="btn primary" onclick="openIdea()">＋ Crear primera idea</button></div>`:`<div class="idea-kanban">${IDEA_STATUSES.map(s=>ideaColumn(s,rows.filter(i=>ideaStatusValue(i)===s))).join('')}</div>`}`;
+}
+function ideaColumn(status,rows){
+  return `<section class="idea-column" data-status="${esc(status)}" ondragover="allowIdeaDrop(event)" ondragleave="leaveIdeaDrop(event)" ondrop="dropIdeaStatus(event,'${status.replace(/'/g,"\\'")}')"><div class="idea-column-head"><div class="idea-column-title">${ideaStageIcon(status)} ${esc(status)}</div><div class="idea-column-count">${rows.length}</div></div><div class="idea-column-list">${rows.length?rows.map(ideaKanbanCard).join(''):`<div class="idea-empty-column">Suelta una idea aquí</div>`}</div></section>`;
+}
+function ideaKanbanCard(i){
+  const status=ideaStatusValue(i),product=ideaProduct(i),pilar=ideaPillarValue(i),formato=ideaFormatValue(i),tema=ideaTopicValue(i),hook=ideaHookValue(i),platform=ideaPlatformValue(i),objective=ideaObjectiveValue(i);
+  return `<article class="idea-kanban-card" draggable="true" ondragstart="startIdeaDrag(event,${i.id})" ondragend="endIdeaDrag(event)"><div class="idea-card-top"><div class="idea-card-tags"><span class="idea-tag platform">${esc(platform)}</span>${objective?`<span class="idea-tag">${esc(objective)}</span>`:''}</div><button class="icon-btn" onclick="openIdea(${i.id})" title="Editar idea">✎</button></div>${pilar||formato?`<div class="idea-meta-line"><b>${esc(pilar||'Sin pilar')}</b>${formato?` · ${esc(formato)}`:''}</div>`:''}<h3>${esc(tema||hook||'Idea sin tema')}</h3>${hook?`<div class="idea-hook">“${esc(hook)}”</div>`:''}${product?`<div class="idea-meta-line">🛍️ <span>${esc(product.name)}</span></div>`:''}<div class="idea-card-actions"><select class="idea-status-select" onchange="updateIdeaStatus(${i.id},this.value)" title="Cambiar estado">${IDEA_STATUSES.map(s=>`<option ${s===status?'selected':''}>${esc(s)}</option>`).join('')}</select><button class="btn secondary" style="padding:7px 10px;font-size:11px" onclick="convertIdea(${i.id})">📅 Calendario</button></div></article>`;
+}
+function startIdeaDrag(e,id){draggedIdeaId=id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));e.currentTarget.classList.add('dragging')}
+function endIdeaDrag(e){e.currentTarget.classList.remove('dragging');document.querySelectorAll('.idea-column.drag-over').forEach(x=>x.classList.remove('drag-over'));draggedIdeaId=null}
+function allowIdeaDrop(e){e.preventDefault();e.dataTransfer.dropEffect='move';e.currentTarget.classList.add('drag-over')}
+function leaveIdeaDrop(e){if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drag-over')}
+async function dropIdeaStatus(e,status){e.preventDefault();e.currentTarget.classList.remove('drag-over');const raw=e.dataTransfer.getData('text/plain')||draggedIdeaId;const id=Number(raw);if(!id)return;await updateIdeaStatus(id,status)}
+async function updateIdeaStatus(id,status){
+  const i=state.ideas.find(x=>Number(x.id)===Number(id));
+  if(!i||!IDEA_STATUSES.includes(status))return;
+  if(ideaStatusValue(i)===status)return;
+  await put('ideas',{...i,id:i.id,status,updatedAt:new Date().toISOString()});
+  await refresh();render();toast(`${ideaStageIcon(status)} Idea movida a ${status}`);
+}
+
+function openIdea(id=null){
+  const found=id?state.ideas.find(x=>Number(x.id)===Number(id)):null;
+  const i=found||{pilar:'',formato:'',tema:'',productId:'',hook:'',platform:'Threads',objective:'Alcance',status:'Idea',notes:'',createdAt:new Date().toISOString()};
+  const pilar=ideaPillarValue(i),formato=ideaFormatValue(i),tema=ideaTopicValue(i),hook=ideaHookValue(i),platform=ideaPlatformValue(i),objective=ideaObjectiveValue(i)||'Alcance',status=ideaStatusValue(i);
+  modal(id?'Editar idea':'Nueva idea',`<form class="modal-body" onsubmit="saveIdea(event,${id||'null'})"><div class="idea-flow-help"><b>Flujo del Banco de Ideas:</b> 💡 Idea → 📅 Planificada → ✍️ En creación → ✅ Publicada</div><div class="idea-modal-grid">${field('Pilar',`<input id="i_pillar" class="input" value="${val(pilar)}" required placeholder="Ej. Organización, desk finds, comunidad…">`)}${field('Formato',`<input id="i_format" class="input" value="${val(formato)}" required placeholder="Ej. Pregunta, lista, recomendación, historia…">`)}${field('Tema',`<input id="i_topic" class="input" value="${val(tema)}" required placeholder="¿De qué trata esta idea?">`)}${field('Producto',`<select id="i_product" class="input"><option value="">Sin producto</option>${state.products.map(p=>`<option value="${p.id}" ${Number(i.productId)===Number(p.id)?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`)}<div class="wide">${field('Hook',`<textarea id="i_hook" class="input" required placeholder="La frase que hará que alguien se detenga a leer…">${val(hook)}</textarea>`)}</div>${field('Plataforma',`<select id="i_platform" class="input">${IDEA_PLATFORMS.map(x=>`<option ${platform===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Objetivo',`<select id="i_objective" class="input">${CONTENT_OBJECTIVES.map(x=>`<option ${objective===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Estado',`<select id="i_status" class="input">${IDEA_STATUSES.map(x=>`<option ${status===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Notas opcionales',`<input id="i_notes" class="input" value="${val(i.notes||'')}" placeholder="Contexto, referencia, CTA, variación…">`)}</div><div class="modal-actions">${id?`<button type="button" class="btn danger" onclick="deleteIdea(${id})">Eliminar</button>`:''}<button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary">Guardar idea</button></div></form>`);
+}
+async function saveIdea(e,id){
+  e.preventDefault();
+  const prev=id?state.ideas.find(x=>Number(x.id)===Number(id)):{};
+  const productRaw=document.getElementById('i_product').value;
+  const obj={...prev,pilar:document.getElementById('i_pillar').value.trim(),formato:document.getElementById('i_format').value.trim(),tema:document.getElementById('i_topic').value.trim(),productId:productRaw?Number(productRaw):'',hook:document.getElementById('i_hook').value.trim(),platform:document.getElementById('i_platform').value,objective:document.getElementById('i_objective').value,status:document.getElementById('i_status').value,notes:document.getElementById('i_notes').value.trim(),createdAt:id?(prev.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString()};
+  // Compatibilidad con ideas antiguas y backups previos
+  obj.title=obj.hook;obj.category=obj.platform;obj.topic=obj.tema;
+  if(id){obj.id=prev.id;await put('ideas',obj)}else await add('ideas',obj);
+  closeModal();await refresh();render();toast('Idea guardada ✓');
+}
+
+async function convertIdea(id){
+  const i=state.ideas.find(x=>Number(x.id)===Number(id));if(!i)return;
+  const platform=ideaPlatformValue(i)==='Pinterest'?'Pinterest':'Threads';
+  const obj={date:today(),dayLabel:dayName(today()),platform,type:ideaFormatValue(i),copy:ideaHookValue(i),topic:ideaTopicValue(i),productId:i.productId||'',objective:ideaObjectiveValue(i)||'Alcance',contentObjective:ideaObjectiveValue(i)||'Alcance',status:'Pendiente',notes:i.notes||''};
+  const newId=await add('content',obj);
+  if(ideaStatusValue(i)==='Idea')await put('ideas',{...i,id:i.id,status:'Planificada',updatedAt:new Date().toISOString()});
+  await refresh();state.section='calendar';render();openContent(newId);toast('Idea enviada al calendario ✓');
 }
 
 initSecureDashboard();
