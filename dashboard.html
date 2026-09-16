@@ -991,7 +991,7 @@
 
 
 <style id="v190-idea-bank">
-/* GAP Desk Finds · V1.9.0 · Banco de Ideas estratégico */
+/* GAP Desk Finds · V1.9.2 · Banco de Ideas estratégico */
 .idea-bank-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
 .idea-bank-head h2{margin:0;font-size:28px}
 .idea-bank-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -2987,6 +2987,28 @@ function rerenderContentModal(id){
   contentModal(obj);
 }
 
+async function syncPublishedIdeaFromContent(contentObj,contentId){
+  if(contentObj?.status!=='Publicado')return false;
+  const sourceIdeaId=Number(contentObj?.sourceIdeaId||contentObj?.ideaId||0);
+  let idea=sourceIdeaId?state.ideas.find(i=>Number(i.id)===sourceIdeaId):null;
+  if(!idea&&contentId){
+    idea=state.ideas.find(i=>Number(i.linkedContentId||i.publishedContentId||0)===Number(contentId));
+  }
+  if(!idea)return false;
+  const now=new Date().toISOString();
+  await put('ideas',{
+    ...idea,
+    id:idea.id,
+    status:'Publicada',
+    linkedContentId:Number(contentId)||idea.linkedContentId||'',
+    publishedContentId:Number(contentId)||idea.publishedContentId||'',
+    publishedAt:now,
+    publishedDate:contentObj.date||idea.publishedDate||'',
+    updatedAt:now
+  });
+  return true;
+}
+
 async function saveContent(e,id){
   e.preventDefault();
   const p=document.getElementById('c_platform').value,g=n=>document.getElementById(n);
@@ -3019,8 +3041,10 @@ async function saveContent(e,id){
       followersGained:+g('c_followers').value||0
     });
   }
-  if(id){obj.id=id;await put('content',obj)}else await add('content',obj);
-  closeModal();await refresh();toast('Publicación guardada ✓');
+  let contentId;
+  if(id){obj.id=id;contentId=await put('content',obj)}else contentId=await add('content',obj);
+  const ideaPublished=await syncPublishedIdeaFromContent(obj,contentId);
+  closeModal();await refresh();toast(ideaPublished?'Publicación guardada · idea movida a ✅ Publicada':'Publicación guardada ✓');
 }
 
 function pubCard(c){
@@ -4053,7 +4077,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.9.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.9.2</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4137,10 +4161,10 @@ function homeView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.9.0
+// GAP DESK FINDS · V1.9.2
 // Banco de Ideas: Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado
 // ============================================================
-const IDEA_STATUSES=['Idea','Planificada','En creación','Publicada'];
+const IDEA_STATUSES=['Idea','En creación','Planificada','Publicada'];
 const IDEA_PLATFORMS=['Threads','Pinterest','Ambas'];
 let ideaSearchQuery='';
 let draggedIdeaId=null;
@@ -4211,7 +4235,7 @@ function openIdea(id=null){
   const found=id?state.ideas.find(x=>Number(x.id)===Number(id)):null;
   const i=found||{pilar:'',formato:'',tema:'',productId:'',hook:'',platform:'Threads',objective:'Alcance',status:'Idea',notes:'',createdAt:new Date().toISOString()};
   const pilar=ideaPillarValue(i),formato=ideaFormatValue(i),tema=ideaTopicValue(i),hook=ideaHookValue(i),platform=ideaPlatformValue(i),objective=ideaObjectiveValue(i)||'Alcance',status=ideaStatusValue(i);
-  modal(id?'Editar idea':'Nueva idea',`<form class="modal-body" onsubmit="saveIdea(event,${id||'null'})"><div class="idea-flow-help"><b>Flujo del Banco de Ideas:</b> 💡 Idea → 📅 Planificada → ✍️ En creación → ✅ Publicada</div><div class="idea-modal-grid">${field('Pilar',`<input id="i_pillar" class="input" value="${val(pilar)}" required placeholder="Ej. Organización, desk finds, comunidad…">`)}${field('Formato',`<input id="i_format" class="input" value="${val(formato)}" required placeholder="Ej. Pregunta, lista, recomendación, historia…">`)}${field('Tema',`<input id="i_topic" class="input" value="${val(tema)}" required placeholder="¿De qué trata esta idea?">`)}${field('Producto',`<select id="i_product" class="input"><option value="">Sin producto</option>${state.products.map(p=>`<option value="${p.id}" ${Number(i.productId)===Number(p.id)?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`)}<div class="wide">${field('Hook',`<textarea id="i_hook" class="input" required placeholder="La frase que hará que alguien se detenga a leer…">${val(hook)}</textarea>`)}</div>${field('Plataforma',`<select id="i_platform" class="input">${IDEA_PLATFORMS.map(x=>`<option ${platform===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Objetivo',`<select id="i_objective" class="input">${CONTENT_OBJECTIVES.map(x=>`<option ${objective===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Estado',`<select id="i_status" class="input">${IDEA_STATUSES.map(x=>`<option ${status===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Notas opcionales',`<input id="i_notes" class="input" value="${val(i.notes||'')}" placeholder="Contexto, referencia, CTA, variación…">`)}</div><div class="modal-actions">${id?`<button type="button" class="btn danger" onclick="deleteIdea(${id})">Eliminar</button>`:''}<button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary">Guardar idea</button></div></form>`);
+  modal(id?'Editar idea':'Nueva idea',`<form class="modal-body" onsubmit="saveIdea(event,${id||'null'})"><div class="idea-flow-help"><b>Flujo del Banco de Ideas:</b> 💡 Idea → ✍️ En creación → 📅 Planificada → ✅ Publicada<br><small>Cuando una publicación vinculada cambie a “Publicado”, la idea pasará automáticamente a “Publicada”.</small></div><div class="idea-modal-grid">${field('Pilar',`<input id="i_pillar" class="input" value="${val(pilar)}" required placeholder="Ej. Organización, desk finds, comunidad…">`)}${field('Formato',`<input id="i_format" class="input" value="${val(formato)}" required placeholder="Ej. Pregunta, lista, recomendación, historia…">`)}${field('Tema',`<input id="i_topic" class="input" value="${val(tema)}" required placeholder="¿De qué trata esta idea?">`)}${field('Producto',`<select id="i_product" class="input"><option value="">Sin producto</option>${state.products.map(p=>`<option value="${p.id}" ${Number(i.productId)===Number(p.id)?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`)}<div class="wide">${field('Hook',`<textarea id="i_hook" class="input" required placeholder="La frase que hará que alguien se detenga a leer…">${val(hook)}</textarea>`)}</div>${field('Plataforma',`<select id="i_platform" class="input">${IDEA_PLATFORMS.map(x=>`<option ${platform===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Objetivo',`<select id="i_objective" class="input">${CONTENT_OBJECTIVES.map(x=>`<option ${objective===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Estado',`<select id="i_status" class="input">${IDEA_STATUSES.map(x=>`<option ${status===x?'selected':''}>${x}</option>`).join('')}</select>`)}${field('Notas opcionales',`<input id="i_notes" class="input" value="${val(i.notes||'')}" placeholder="Contexto, referencia, CTA, variación…">`)}</div><div class="modal-actions">${id?`<button type="button" class="btn danger" onclick="deleteIdea(${id})">Eliminar</button>`:''}<button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button class="btn primary">Guardar idea</button></div></form>`);
 }
 async function saveIdea(e,id){
   e.preventDefault();
@@ -4227,9 +4251,22 @@ async function saveIdea(e,id){
 async function convertIdea(id){
   const i=state.ideas.find(x=>Number(x.id)===Number(id));if(!i)return;
   const platform=ideaPlatformValue(i)==='Pinterest'?'Pinterest':'Threads';
-  const obj={date:today(),dayLabel:dayName(today()),platform,type:ideaFormatValue(i),copy:ideaHookValue(i),topic:ideaTopicValue(i),productId:i.productId||'',objective:ideaObjectiveValue(i)||'Alcance',contentObjective:ideaObjectiveValue(i)||'Alcance',status:'Pendiente',notes:i.notes||''};
+  const now=new Date().toISOString();
+  const obj={
+    date:today(),dayLabel:dayName(today()),platform,
+    type:ideaFormatValue(i),copy:ideaHookValue(i),topic:ideaTopicValue(i),
+    productId:i.productId||'',objective:ideaObjectiveValue(i)||'Alcance',contentObjective:ideaObjectiveValue(i)||'Alcance',
+    status:'Pendiente',notes:i.notes||'',sourceIdeaId:Number(i.id)
+  };
   const newId=await add('content',obj);
-  if(ideaStatusValue(i)==='Idea')await put('ideas',{...i,id:i.id,status:'Planificada',updatedAt:new Date().toISOString()});
+  await put('ideas',{
+    ...i,
+    id:i.id,
+    status:ideaStatusValue(i)==='Idea'?'Planificada':ideaStatusValue(i),
+    linkedContentId:newId,
+    scheduledDate:obj.date,
+    updatedAt:now
+  });
   await refresh();state.section='calendar';render();openContent(newId);toast('Idea enviada al calendario ✓');
 }
 
