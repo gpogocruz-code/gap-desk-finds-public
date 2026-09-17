@@ -991,7 +991,7 @@
 
 
 <style id="v190-idea-bank">
-/* GAP Desk Finds · V1.11.0 · Banco de Ideas estratégico */
+/* GAP Desk Finds · V1.11.1 · Banco de Ideas estratégico */
 .idea-bank-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
 .idea-bank-head h2{margin:0;font-size:28px}
 .idea-bank-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -1035,7 +1035,7 @@
 
 
 <style id="v1100-calendar-styles">
-/* GAP Desk Finds · V1.11.0 · Calendario */
+/* GAP Desk Finds · V1.11.1 · Calendario */
 .month-event{position:relative;display:flex;align-items:flex-start;gap:6px;padding-right:20px}
 .month-event.threads{background:rgba(15,15,18,.10)!important;color:#151515!important;border:1px solid rgba(15,15,18,.06)}
 .month-event.pinterest{background:rgba(230,0,35,.10)!important;color:#9d0018!important;border:1px solid rgba(230,0,35,.08)}
@@ -1057,7 +1057,7 @@
 
 
 <style id="v1110-weekly-audit-styles">
-/* GAP Desk Finds · V1.11.0 · Auditoría semanal */
+/* GAP Desk Finds · V1.11.1 · Auditoría semanal */
 .weekly-audit-wrap{display:grid;gap:18px}
 .weekly-audit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .weekly-audit-head h2{margin:0;font-size:23px}
@@ -4168,7 +4168,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.1</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4252,7 +4252,7 @@ function homeView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.11.0
+// GAP DESK FINDS · V1.11.1
 // Banco de Ideas: Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado
 // ============================================================
 const IDEA_STATUSES=['Idea','En creación','Planificada','Publicada'];
@@ -4363,7 +4363,7 @@ async function convertIdea(id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.11.0
+// GAP DESK FINDS · V1.11.1
 // Calendario funcional + Banco de Ideas planificadas
 // ============================================================
 
@@ -4463,7 +4463,7 @@ function shell(body){
   const subtitle=(state.section==='home'||state.section==='calendar')?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.1</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4551,6 +4551,186 @@ async function saveContent(e,id){
   let contentId;if(id){obj.id=id;await put('content',obj);contentId=id}else contentId=await add('content',obj);
   const linked=await syncIdeaFromCalendarContent(obj,contentId);
   closeModal();await refresh();render();toast(linked&&obj.status==='Publicado'?'Publicación guardada · idea movida a ✅ Publicada':'Publicación guardada ✓');
+}
+
+
+
+// ============================================================
+// GAP DESK FINDS · V1.11.1
+// FIX: activa la pestaña de Auditoría semanal
+// ============================================================
+
+function auditDateRange(){
+  const now=new Date(); now.setHours(12,0,0,0);
+  const dow=(now.getDay()+6)%7;
+  const monday=new Date(now); monday.setDate(now.getDate()-dow);
+  const start=new Date(monday); start.setDate(monday.getDate()-7); start.setHours(0,0,0,0);
+  const end=new Date(monday); end.setHours(0,0,0,0);
+  return {start,end};
+}
+function auditDateLabel(){
+  const {start,end}=auditDateRange(), e=new Date(end); e.setDate(e.getDate()-1);
+  const f=d=>d.toLocaleDateString('es-EC',{day:'numeric',month:'short'});
+  return `${f(start)} — ${f(e)}`;
+}
+function auditInRange(value,start,end){
+  if(!value)return false;
+  const d=new Date(value);
+  return !Number.isNaN(d.getTime()) && d>=start && d<end;
+}
+function auditThreadRows(){
+  const remote=getRemoteMetrics().threads||{};
+  const posts=Array.isArray(remote.topPosts)?remote.topPosts:[];
+  if(posts.length){
+    return posts.map((p,i)=>{
+      const reach=+p.views||0, likes=+p.likes||0, replies=+p.replies||0, reposts=+p.reposts||0, quotes=+p.quotes||0;
+      const interactions=likes+replies+reposts+quotes;
+      return {id:`t-${p.id||i}`,platform:'Threads',title:String(p.text||'Publicación de Threads').replace(/\s+/g,' ').trim(),
+        date:p.posted_at||p.timestamp||p.created_at||'',reach,interactions,rate:reach?interactions/reach*100:0};
+    });
+  }
+  return state.content.filter(c=>c.platform==='Threads'&&c.status==='Publicado').map(c=>{
+    const h=hydrateThreadRecord(c), reach=+h.views||0, interactions=(+h.likes||0)+(+h.replies||0)+(+h.reposts||0)+(+h.quotes||0);
+    return {id:`tl-${c.id}`,platform:'Threads',title:String(h.copy||h.topic||'Thread').replace(/\s+/g,' ').trim(),
+      date:h.posted_at||h.timestamp||h.date||'',reach,interactions,rate:reach?interactions/reach*100:0};
+  });
+}
+function auditPinterestRows(){
+  const remote=getRemoteMetrics().pinterest||{};
+  const posts=Array.isArray(remote.topPins)?remote.topPins:(Array.isArray(remote.pins)?remote.pins:[]);
+  if(posts.length){
+    return posts.map((p,i)=>{
+      const reach=+p.impressions||0, saves=+p.saves||0, pinClicks=+(p.pin_clicks??p.pinClicks)||0, outbound=+(p.outbound_clicks??p.outboundClicks)||0;
+      const interactions=+p.engagements||(saves+pinClicks+outbound);
+      return {id:`p-${p.pin_id||p.id||i}`,platform:'Pinterest',title:String(p.title||p.description||'Pin').replace(/\s+/g,' ').trim(),
+        date:p.created_at||p.created_time||p.date||'',reach,interactions,rate:reach?interactions/reach*100:0};
+    });
+  }
+  return state.content.filter(c=>c.platform==='Pinterest'&&c.status==='Publicado').map(c=>{
+    const reach=+c.impressions||0, interactions=(+c.saves||0)+(+c.clicks||0)+(+c.amazonClicks||0);
+    return {id:`pl-${c.id}`,platform:'Pinterest',title:String(c.pinterestTitle||c.copy||c.topic||'Pin').replace(/\s+/g,' ').trim(),
+      date:c.date||'',reach,interactions,rate:reach?interactions/reach*100:0};
+  });
+}
+function weeklyAuditRows(){
+  const {start,end}=auditDateRange();
+  return [...auditThreadRows(),...auditPinterestRows()].filter(r=>auditInRange(r.date,start,end));
+}
+function auditRankCard(r,index,kind){
+  return `<div class="audit-rank-card ${kind}">
+    <div class="audit-rank-num">${String(index+1).padStart(2,'0')}</div>
+    <div class="audit-rank-platform">${esc(r.platform)}</div>
+    <div class="audit-rank-score">${pc(r.rate||0)}</div>
+    <div class="audit-rank-title">${esc((r.title||'Sin título').slice(0,100))}</div>
+    <div class="audit-rank-meta">${(+r.reach||0).toLocaleString()} ${r.platform==='Threads'?'views':'impresiones'} · ${(+r.interactions||0).toLocaleString()} interacciones</div>
+  </div>`;
+}
+function auditBestByPlatform(rows,name){
+  return rows.filter(r=>r.platform===name).sort((a,b)=>(b.rate||0)-(a.rate||0))[0]||null;
+}
+function auditBestHours(){
+  const cutoff=Date.now()-90*86400000, buckets={};
+  [...auditThreadRows(),...auditPinterestRows()].forEach(r=>{
+    const d=new Date(r.date); if(Number.isNaN(d.getTime())||d.getTime()<cutoff)return;
+    const hour=d.getHours(), key=`${r.platform}-${hour}`;
+    buckets[key]??={platform:r.platform,hour,count:0,total:0};
+    buckets[key].count++; buckets[key].total+=+r.rate||0;
+  });
+  return Object.values(buckets).map(b=>({...b,avg:b.total/b.count})).sort((a,b)=>b.avg-a.avg||b.count-a.count).slice(0,3);
+}
+function auditHourLabel(h){
+  const d=new Date(); d.setHours(h,0,0,0);
+  return d.toLocaleTimeString('es-EC',{hour:'numeric',minute:'2-digit'});
+}
+function auditNextSlots(hours){
+  const now=new Date(); now.setHours(12,0,0,0);
+  const dow=(now.getDay()+6)%7, monday=new Date(now); monday.setDate(now.getDate()-dow+7);
+  const names=['Lunes','Martes','Miércoles','Jueves','Viernes'];
+  const ideas=state.ideas.filter(i=>ideaStatusValue(i)==='Planificada'&&!i.linkedContentId).slice(0,5);
+  return names.map((name,i)=>{
+    const d=new Date(monday); d.setDate(monday.getDate()+i);
+    return {name,date:isoLocalDate(d),hour:hours[i%Math.max(hours.length,1)]?.hour??19,idea:ideas[i]};
+  });
+}
+function weeklyAuditCard(){
+  const rows=weeklyAuditRows().sort((a,b)=>(b.rate||0)-(a.rate||0));
+  const top=rows.slice(0,3), bottom=[...rows].sort((a,b)=>(a.rate||0)-(b.rate||0)).slice(0,3);
+  const bestT=auditBestByPlatform(rows,'Threads'), bestP=auditBestByPlatform(rows,'Pinterest');
+  const hours=auditBestHours(), slots=auditNextSlots(hours);
+  const totalReach=rows.reduce((s,r)=>s+(+r.reach||0),0), totalInteractions=rows.reduce((s,r)=>s+(+r.interactions||0),0);
+  const avg=rows.length?rows.reduce((s,r)=>s+(+r.rate||0),0)/rows.length:0;
+
+  return `<div class="weekly-audit-wrap">
+    <div class="card p20">
+      <div class="weekly-audit-head">
+        <div><div class="category">🦸 MODO SUPERHÉROE</div><h2>Auditoría semanal de contenido</h2><p>Analiza automáticamente la semana pasada y convierte los datos en decisiones.</p></div>
+        <span class="audit-period-pill">📅 ${esc(auditDateLabel())}</span>
+      </div>
+      <div class="audit-mini-kpis" style="margin-top:16px">
+        <div class="audit-mini-kpi"><small>Publicaciones</small><b>${rows.length}</b></div>
+        <div class="audit-mini-kpi"><small>Alcance total</small><b>${totalReach.toLocaleString()}</b></div>
+        <div class="audit-mini-kpi"><small>Interacciones</small><b>${totalInteractions.toLocaleString()}</b></div>
+        <div class="audit-mini-kpi"><small>Engagement medio</small><b>${pc(avg)}</b></div>
+      </div>
+    </div>
+
+    ${rows.length?`<div class="card p20">
+      <div class="audit-ranking-grid">
+        <div><div class="audit-column-title top">Top 3</div><div class="audit-rank-list">${top.map((r,i)=>auditRankCard(r,i,'top')).join('')}</div></div>
+        <div><div class="audit-column-title bottom">Bottom 3</div><div class="audit-rank-list">${bottom.map((r,i)=>auditRankCard(r,i,'bottom')).join('')}</div></div>
+      </div>
+      <div class="audit-note" style="margin-top:16px"><span class="icon">⚠️</span><div><b>Comparación por plataforma:</b> Threads calcula engagement sobre views y Pinterest sobre impresiones. Pinterest solo entra cuando existan métricas disponibles.</div></div>
+      <div class="audit-network-strip" style="margin-top:14px">
+        <div class="audit-network-item"><small>Threads</small><b>${bestT?pc(bestT.rate):'—'}</b><span>${bestT?esc(bestT.title.slice(0,48)):'Sin datos esta semana'}</span></div>
+        <div class="audit-network-item"><small>Pinterest</small><b>${bestP?pc(bestP.rate):'—'}</b><span>${bestP?esc(bestP.title.slice(0,48)):'API / métricas pendientes'}</span></div>
+        <div class="audit-network-item"><small>Amazon Afiliados</small><b>—</b><span>Reporting API pendiente</span></div>
+      </div>
+    </div>`:`<div class="audit-empty">No hay publicaciones con métricas dentro de la semana pasada (${esc(auditDateLabel())}).</div>`}
+
+    <div class="audit-section-card">
+      <div class="audit-section-title"><div><h3>⏰ Mejores horarios detectados</h3><small>Usa hasta 90 días de historial disponible.</small></div></div>
+      ${hours.length?`<div class="audit-hours">${hours.map((h,i)=>`<div class="audit-hour"><small>#${i+1} · ${esc(h.platform)}</small><b>${esc(auditHourLabel(h.hour))}</b><span>${pc(h.avg)} engagement promedio · ${h.count} publ.</span></div>`).join('')}</div>`:`<div class="audit-empty">Necesito publicaciones con hora y métricas para detectar horarios.</div>`}
+    </div>
+
+    <div class="audit-section-card">
+      <div class="audit-section-title"><div><h3>📅 Plan de la próxima semana</h3><small>Cinco espacios que puedes programar desde el Banco de Ideas.</small></div></div>
+      <div class="audit-plan-grid">${slots.map(s=>`<div class="audit-plan-card">
+        <div class="day">${esc(s.name)}</div><div class="time">${esc(auditHourLabel(s.hour))}</div>
+        <div class="idea">${s.idea?`🧠 ${esc(ideaTopicValue(s.idea)||ideaHookValue(s.idea)||'Idea planificada')}`:'✨ Espacio disponible'}</div>
+        <button class="btn secondary" onclick="showCalendarAddMenu('${s.date}',event)">Programar ▾</button>
+      </div>`).join('')}</div>
+    </div>
+
+    <div class="audit-section-card">
+      <div class="audit-section-title"><div><h3>🔎 Competidores</h3><small>Preparado para una fuente de datos autorizada.</small></div><span class="pill">Pendiente</span></div>
+      <div class="audit-competitor-empty"><b>No voy a inventar datos de competidores.</b><br>Cuando conectemos una fuente válida o registremos referencias, aquí aparecerán las publicaciones que superen tu rendimiento.</div>
+    </div>
+  </div>`;
+}
+
+function analyticsTabs(){
+  const items=[
+    {id:'threads',name:'Threads',sub:'Views · engagement',cls:'threads'},
+    {id:'pinterest',name:'Pinterest',sub:'Impresiones · clicks',cls:'pinterest'},
+    {id:'amazon',name:'Amazon Afiliados',sub:'Clicks · earnings',cls:'amazon'},
+    {id:'audit',name:'Auditoría semanal',sub:'Top · Bottom · horarios',cls:'audit'}
+  ];
+  return `<div class="analytics-platform-tabs">${items.map(x=>`
+    <button class="platform-tab ${x.cls} ${analyticsPlatform===x.id?'active':''}" onclick="setAnalyticsPlatform('${x.id}')">
+      <span class="platform-tab-left">
+        ${x.id==='audit'?`<span class="audit-tab-icon">🦸</span>`:`<img src="${platformLogo(x.id)}" alt="${x.name}">`}
+        <span><b>${x.name}</b><small>${x.sub}</small></span>
+      </span><span class="chev">›</span>
+    </button>`).join('')}</div>`;
+}
+
+function analyticsView(){
+  let body='';
+  if(analyticsPlatform==='threads')body=threadsAnalyticsCard();
+  else if(analyticsPlatform==='pinterest')body=pinterestAnalyticsCard();
+  else if(analyticsPlatform==='amazon')body=amazonAnalyticsCard();
+  else body=weeklyAuditCard();
+  return `<div class="section-head"><div><h2>Analytics por plataforma</h2><p>Rendimiento por canal y auditoría semanal automática.</p></div></div>${analyticsTabs()}${body}`;
 }
 
 
