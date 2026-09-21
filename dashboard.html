@@ -991,7 +991,7 @@
 
 
 <style id="v190-idea-bank">
-/* GAP Desk Finds · V1.11.2 · Banco de Ideas estratégico */
+/* GAP Desk Finds · V1.12.0 · Banco de Ideas estratégico */
 .idea-bank-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
 .idea-bank-head h2{margin:0;font-size:28px}
 .idea-bank-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -1035,7 +1035,7 @@
 
 
 <style id="v1100-calendar-styles">
-/* GAP Desk Finds · V1.11.2 · Calendario */
+/* GAP Desk Finds · V1.12.0 · Calendario */
 .month-event{position:relative;display:flex;align-items:flex-start;gap:6px;padding-right:20px}
 .month-event.threads{background:rgba(15,15,18,.10)!important;color:#151515!important;border:1px solid rgba(15,15,18,.06)}
 .month-event.pinterest{background:rgba(230,0,35,.10)!important;color:#9d0018!important;border:1px solid rgba(230,0,35,.08)}
@@ -1057,7 +1057,7 @@
 
 
 <style id="v1110-weekly-audit-styles">
-/* GAP Desk Finds · V1.11.2 · Auditoría semanal */
+/* GAP Desk Finds · V1.12.0 · Auditoría semanal */
 .weekly-audit-wrap{display:grid;gap:18px}
 .weekly-audit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .weekly-audit-head h2{margin:0;font-size:23px}
@@ -1125,14 +1125,39 @@
 </style>
 
 
-<style id="v1112-publisher-test-styles">
-.publisher-test-card{margin-top:18px}
-.publisher-test-grid{display:grid;grid-template-columns:1.4fr .6fr;gap:14px;align-items:start}
-.publisher-test-card textarea{min-height:110px;resize:vertical}
-.publisher-test-result{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff8fb;min-height:110px;font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-word}
-.publisher-test-result.ok{background:#f2fbf5;border-color:#cfe9d7;color:#216b3d}
-.publisher-test-result.err{background:#fff5f3;border-color:#f1c8c1;color:#a13c2d}
-@media(max-width:760px){.publisher-test-grid{grid-template-columns:1fr}}
+<style id="v1200-threads-media-styles">
+.threads-media-box{
+  border:1px solid var(--line);
+  background:#fff8fb;
+  border-radius:16px;
+  padding:14px;
+  margin:12px 0;
+}
+.threads-media-box .media-help{
+  display:block;
+  margin-top:6px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.4;
+}
+.threads-media-list{display:grid;gap:7px;margin-top:10px}
+.threads-media-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 10px;
+}
+.threads-media-item .meta{min-width:0}
+.threads-media-item b{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.threads-media-item small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+.threads-media-ready{
+  display:inline-flex;align-items:center;gap:6px;margin-top:8px;
+  font-size:10px;font-weight:850;color:#237b45;background:#eef9f2;border:1px solid #cee8d6;
+  border-radius:999px;padding:6px 9px;
+}
+.upload-progress{
+  margin-top:8px;padding:9px 10px;border-radius:11px;background:#fff;border:1px dashed var(--rose300);
+  color:var(--muted);font-size:10px;display:none
+}
+.upload-progress.show{display:block}
 </style>
 
 </head>
@@ -4164,7 +4189,7 @@ function settingsView(){
     <div class="card integration-card"><div class="connection-row"><div><div class="category">🛍️ Amazon</div><h3 style="margin:5px 0 0">Reporting API</h3></div>${connectionBadge('pending')}</div><p class="muted">Preparado para clicks, pedidos, conversión, earnings y revenue cuando la cuenta sea elegible.</p></div>
   </div>
   <div class="api-pending-box" style="margin-top:18px"><b>⏸️ Tracking alternativo en pausa</b><span>No se generan links medibles ni redirects intermedios.</span><small>Cuando tengamos acceso a Pinterest API y Amazon Reporting/Creators API conectaremos los datos oficiales directamente a Supabase y a estas columnas ya reservadas.</small></div>
-  ${threadsPublisherTestCard()}<div class="section-head" style="margin-top:28px"><div><h2 style="font-size:20px">Backup de tu nube privada</h2><p>Puedes exportar o restaurar publicaciones, productos e ideas.</p></div></div>
+  <div class="section-head" style="margin-top:28px"><div><h2 style="font-size:20px">Backup de tu nube privada</h2><p>Puedes exportar o restaurar publicaciones, productos e ideas.</p></div></div>
   <div class="grid data-grid gap20"><div class="card p24"><div style="font-size:25px">⬇️</div><h3>Exportar backup</h3><p class="muted">Descarga una copia JSON de tus datos actuales en Supabase.</p><button class="btn primary" onclick="exportBackup()">⬇️ Descargar backup</button></div><div class="card p24"><div style="font-size:25px">⬆️</div><h3>Importar backup</h3><p class="muted">Restaura un backup previo. Reemplazará los datos de estas tres colecciones privadas.</p><label class="btn secondary">⬆️ Elegir archivo<input class="hidden" type="file" accept="application/json" onchange="importBackup(this.files[0])"></label></div><div class="card p24"><div style="font-size:25px">🧳</div><h3>Recuperar datos anteriores</h3><p class="muted">Busca el registro editorial previo y lo copia a Supabase si tu nube está vacía.</p><button class="btn secondary" onclick="manualLegacyMigration()">🧳 Buscar datos locales</button></div></div>`;
 }
 
@@ -4179,7 +4204,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.2</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.12.0</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4263,7 +4288,7 @@ function homeView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.11.2
+// GAP DESK FINDS · V1.12.0
 // Banco de Ideas: Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado
 // ============================================================
 const IDEA_STATUSES=['Idea','En creación','Planificada','Publicada'];
@@ -4374,7 +4399,7 @@ async function convertIdea(id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.11.2
+// GAP DESK FINDS · V1.12.0
 // Calendario funcional + Banco de Ideas planificadas
 // ============================================================
 
@@ -4474,7 +4499,7 @@ function shell(body){
   const subtitle=(state.section==='home'||state.section==='calendar')?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.2</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.12.0</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4567,7 +4592,7 @@ async function saveContent(e,id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.11.2
+// GAP DESK FINDS · V1.12.0
 // FIX: activa la pestaña de Auditoría semanal
 // ============================================================
 
@@ -4747,85 +4772,272 @@ function analyticsView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.11.2
-// Prueba segura del publicador de Threads
+// GAP DESK FINDS · V1.12.0
+// Threads media → Supabase Storage (threads-media)
 // ============================================================
 
-const THREADS_PUBLISHER_URL=SUPABASE_URL+'/functions/v1/threads-publisher';
+const THREADS_MEDIA_BUCKET='threads-media';
 
-function threadsPublisherTestCard(){
-  return `<div class="card p24 publisher-test-card">
-    <div class="section-head">
-      <div>
-        <h2 style="font-size:20px">🧪 Prueba de publicación en Threads</h2>
-        <p>Publica un Thread de texto usando tu sesión privada. Úsalo solo para comprobar el nuevo permiso antes de activar programación automática.</p>
-      </div>
-      <span class="connection-badge ok"><span class="dot"></span>Protegido</span>
-    </div>
-    <div class="publisher-test-grid">
-      <div>
-        <label style="font-size:11px;font-weight:850">Texto de prueba</label>
-        <textarea id="threads_test_text" class="input" maxlength="500" placeholder="Escribe un Thread de prueba…"></textarea>
-        <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:10px">
-          <button id="threads_test_btn" class="btn primary" onclick="testThreadsPublisher()">Publicar prueba en Threads</button>
-          <small class="muted">Se publicará realmente en @ann_pc_28.</small>
-        </div>
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:850">Resultado</label>
-        <div id="threads_test_result" class="publisher-test-result">Aún no se ha ejecutado ninguna prueba.</div>
-      </div>
-    </div>
-  </div>`;
+function safeStorageName(name){
+  return String(name||'archivo')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9._-]+/g,'-')
+    .replace(/-+/g,'-')
+    .replace(/^-|-$/g,'')
+    .slice(-120) || 'archivo';
+}
+function storagePathUrl(path){
+  return String(path).split('/').map(encodeURIComponent).join('/');
+}
+function threadsPublicMediaUrl(path){
+  return `${SUPABASE_URL}/storage/v1/object/public/${THREADS_MEDIA_BUCKET}/${storagePathUrl(path)}`;
+}
+async function uploadThreadMediaFile(file){
+  if(!file)throw new Error('Archivo vacío');
+  if(file.size>50*1024*1024)throw new Error(`${file.name}: supera el límite de 50 MB`);
+  const allowed=['image/jpeg','image/png','image/webp','video/mp4'];
+  if(!allowed.includes(file.type))throw new Error(`${file.name}: formato no permitido (${file.type||'sin tipo'})`);
+
+  const session=await ensureSession(true);
+  if(!session?.access_token||!session?.user?.id)throw new Error('Tu sesión expiró. Vuelve a iniciar sesión.');
+
+  const ext=safeStorageName(file.name);
+  const path=`${session.user.id}/${Date.now()}-${crypto.randomUUID()}-${ext}`;
+  const url=`${SUPABASE_URL}/storage/v1/object/${THREADS_MEDIA_BUCKET}/${storagePathUrl(path)}`;
+
+  const res=await fetch(url,{
+    method:'POST',
+    headers:{
+      'apikey':SUPABASE_PUBLISHABLE_KEY,
+      'Authorization':'Bearer '+session.access_token,
+      'Content-Type':file.type,
+      'x-upsert':'false'
+    },
+    body:file
+  });
+  const body=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(body?.message||body?.error||`No se pudo subir ${file.name}`);
+
+  return {
+    path,
+    url:threadsPublicMediaUrl(path),
+    name:file.name,
+    mime:file.type,
+    kind:file.type.startsWith('video/')?'VIDEO':'IMAGE',
+    size:file.size
+  };
+}
+async function uploadSelectedThreadMedia(){
+  const input=document.getElementById('c_threads_media_files');
+  const files=[...(input?.files||[])];
+  if(!files.length)return null;
+
+  const mediaType=document.getElementById('c_mediaType')?.value||'TEXT';
+  if(mediaType==='IMAGE' && files.length!==1)throw new Error('Imagen admite exactamente 1 archivo.');
+  if(mediaType==='VIDEO' && files.length!==1)throw new Error('Video admite exactamente 1 archivo.');
+  if(mediaType==='CAROUSEL' && (files.length<2 || files.length>10))throw new Error('Carrusel requiere entre 2 y 10 archivos.');
+
+  if(mediaType==='IMAGE' && !files[0].type.startsWith('image/'))throw new Error('Selecciona una imagen.');
+  if(mediaType==='VIDEO' && files[0].type!=='video/mp4')throw new Error('Selecciona un video MP4.');
+
+  const progress=document.getElementById('c_upload_progress');
+  if(progress){progress.classList.add('show');progress.textContent=`Subiendo 0 de ${files.length}…`;}
+
+  const uploaded=[];
+  for(let i=0;i<files.length;i++){
+    if(progress)progress.textContent=`Subiendo ${i+1} de ${files.length}: ${files[i].name}`;
+    uploaded.push(await uploadThreadMediaFile(files[i]));
+  }
+  if(progress)progress.textContent='Archivos subidos correctamente ✓';
+  return uploaded;
+}
+function threadsMediaListHTML(media=[]){
+  if(!Array.isArray(media)||!media.length)return '';
+  return `<div class="threads-media-list">${media.map((m,i)=>`
+    <div class="threads-media-item">
+      <div class="meta"><b>${m.kind==='VIDEO'?'🎥':'🖼️'} ${esc(m.name||`Archivo ${i+1}`)}</b><small>${esc(m.kind||'MEDIA')} · guardado en Supabase Storage</small></div>
+      <a class="btn secondary" style="padding:6px 8px;font-size:9px" href="${esc(m.url||'#')}" target="_blank" rel="noopener">Ver ↗</a>
+    </div>`).join('')}</div>`;
+}
+function threadsMediaAccept(type){
+  if(type==='IMAGE')return 'image/jpeg,image/png,image/webp';
+  if(type==='VIDEO')return 'video/mp4';
+  if(type==='CAROUSEL')return 'image/jpeg,image/png,image/webp,video/mp4';
+  return '';
+}
+function updateThreadsMediaInput(){
+  const type=document.getElementById('c_mediaType')?.value||'TEXT';
+  const wrap=document.getElementById('c_media_file_wrap');
+  const input=document.getElementById('c_threads_media_files');
+  if(!wrap||!input)return;
+  if(type==='TEXT'){
+    wrap.style.display='none';
+    input.value='';
+  }else{
+    wrap.style.display='';
+    input.accept=threadsMediaAccept(type);
+    input.multiple=type==='CAROUSEL';
+  }
 }
 
-async function testThreadsPublisher(){
-  const txt=document.getElementById('threads_test_text')?.value?.trim()||'';
-  const result=document.getElementById('threads_test_result');
-  const btn=document.getElementById('threads_test_btn');
+function contentModal(c){
+  c=c.platform==='Threads'?hydrateThreadRecord(c):c;
+  const isP=c.platform==='Pinterest',isT=c.platform==='Threads',estimated=isT?threadFollowerEstimate(c):{value:0},status=normalizedContentStatus(c.status);
+  const existingMedia=Array.isArray(c.threadsMedia)?c.threadsMedia:[];
+  const inferredMediaType=c.mediaType||(existingMedia.length>1?'CAROUSEL':existingMedia[0]?.kind||((c.image&&isT)?'IMAGE':'TEXT'));
 
-  if(!txt){
-    result.className='publisher-test-result err';
-    result.textContent='Escribe primero el texto de prueba.';
-    return;
-  }
-  if(!confirm('Esto publicará REALMENTE este texto en tu cuenta de Threads. ¿Continuar?'))return;
+  modal(c.id?'Editar publicación':'Nueva publicación',`<form class="modal-body" onsubmit="saveContent(event,${c.id||'null'})">
+    <input id="c_sourceIdeaId" type="hidden" value="${val(c.sourceIdeaId||'')}">
+    <div class="grid field-grid-3 gap12">
+      ${field('Fecha',`<input id="c_date" type="date" class="input" value="${val(c.date||today())}" required>`)}
+      ${field('Plataforma',`<select id="c_platform" class="input" onchange="rerenderContentModal(${c.id||'null'})">${['Threads','Pinterest','Instagram','TikTok','Otro'].map(x=>`<option ${c.platform===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+      ${field('Estado',`<select id="c_status" class="input"><option value="Pendiente" ${status==='Pendiente'?'selected':''}>Pendiente</option><option value="Publicado" ${status==='Publicado'?'selected':''}>Publicado</option></select>`)}
+    </div>
 
-  btn.disabled=true;
-  btn.textContent='Publicando…';
-  result.className='publisher-test-result';
-  result.textContent='Conectando con Threads…';
+    ${isT?`<div class="thread-meta-fields">
+      ${field('Hora de publicación',`<input id="c_time" type="time" class="input" value="${val(c.publicationTime||(!c.id?'':threadTimeValue(c).replace('—','')))}">`)}
+      ${field('Tipo de Thread',`<select id="c_threadType" class="input"><option value="">Selecciona un tipo</option>${THREAD_TYPES.map(x=>`<option value="${esc(x)}" ${(c.threadType||'')===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`)}
+      ${field('Tipo de publicación',`<select id="c_mediaType" class="input" onchange="updateThreadsMediaInput()">${['TEXT','IMAGE','VIDEO','CAROUSEL'].map(x=>`<option value="${x}" ${inferredMediaType===x?'selected':''}>${x==='TEXT'?'Texto':x==='IMAGE'?'Imagen':x==='VIDEO'?'Video':'Carrusel'}</option>`).join('')}</select>`)}
+    </div>`:''}
+
+    <div class="grid field-grid-3 gap12">
+      ${field('Objetivo del contenido',`<select id="c_objective" class="input" required><option value="">Selecciona un objetivo</option>${CONTENT_OBJECTIVES.map(x=>`<option value="${x}" ${objectiveSelectValue(c)===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+      ${field(isT?'Formato / estilo':'Tipo / formato',`<input id="c_type" class="input" value="${val(c.type)}" placeholder="${isT?'Texto, foto real, carrusel…':'Foto real, pregunta, carrusel…'}">`)}
+      ${field('Tema',`<input id="c_topic" class="input" value="${val(c.topic)}" placeholder="Real setup, organización…">`)}
+    </div>
+
+    ${field(isP?'Copy / nota interna':'Copy',`<textarea id="c_copy" class="input" placeholder="Texto de la publicación…">${val(c.copy)}</textarea>`)}
+
+    ${isT?`
+      <div class="grid field-grid-2 gap12">
+        ${field('Producto mencionado',`<select id="c_product" class="input"><option value="">Sin producto</option>${state.products.map(p=>`<option value="${p.id}" ${Number(c.productId)===Number(p.id)?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`)}
+        ${field('Alt text del medio',`<input id="c_thread_alt" class="input" value="${val(c.threadAltText||'')}" placeholder="Describe la imagen o video…">`)}
+      </div>
+      <div class="threads-media-box">
+        <b>📦 Medio para Threads</b>
+        <span class="media-help">Las imágenes y videos se subirán a Supabase Storage al guardar. Meta podrá leerlos desde una URL pública, pero solo tu usuario puede subir o borrar archivos.</span>
+        <div id="c_media_file_wrap" style="${inferredMediaType==='TEXT'?'display:none':''};margin-top:10px">
+          <input id="c_threads_media_files" type="file" class="input" accept="${threadsMediaAccept(inferredMediaType)}" ${inferredMediaType==='CAROUSEL'?'multiple':''}>
+          <small class="media-help">Imagen: 1 archivo · Video: MP4 · Carrusel: 2–10 imágenes/videos · máximo 50 MB por archivo.</small>
+        </div>
+        ${threadsMediaListHTML(existingMedia)}
+        ${existingMedia.length?`<span class="threads-media-ready">✓ ${existingMedia.length} archivo${existingMedia.length===1?'':'s'} ya guardado${existingMedia.length===1?'':'s'}</span>`:''}
+        <div id="c_upload_progress" class="upload-progress"></div>
+      </div>
+    `:`
+      <div class="grid field-grid-2 gap12">
+        ${field('Producto relacionado',`<select id="c_product" class="input"><option value="">Sin producto</option>${state.products.map(p=>`<option value="${p.id}" ${Number(c.productId)===Number(p.id)?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`)}
+        ${field('Imagen',`<input id="c_image_file" type="file" accept="image/*" class="input" onchange="previewContentImage(this)">`)}
+      </div>
+      ${c.image?`<img id="c_preview" class="image-preview" src="${c.image}"><input type="hidden" id="c_image" value="${c.image}">`:`<img id="c_preview" class="image-preview hidden"><input type="hidden" id="c_image">`}
+    `}
+
+    ${isP?`<div class="subbox"><b style="color:var(--rose700)">Campos Pinterest</b>
+      ${field('Título',`<input id="c_ptitle" class="input" value="${val(c.pinterestTitle)}">`)}
+      ${field('Descripción',`<textarea id="c_pdesc" class="input">${val(c.pinterestDescription)}</textarea>`)}
+      <div class="grid field-grid-2 gap12">${field('Keywords',`<input id="c_keywords" class="input" value="${val(c.keywords)}">`)}${field('Alt text',`<input id="c_alt" class="input" value="${val(c.altText)}">`)}</div>
+      <div class="api-pending-box"><b>📌 Métricas Pinterest preparadas</b><span>Impresiones · Guardados · Pin clicks · Outbound clicks</span><small>Se completarán automáticamente cuando se apruebe Trial Access.</small></div>
+    </div>`:''}
+
+    ${isT?`<div class="subbox"><b>Métricas${c._liveMatched?' · 🟢 sincronizadas desde Threads API':''}</b>
+      <div class="thread-metrics-fields">
+        ${field('Visualizaciones',`<input id="c_views" type="number" min="0" class="input" value="${num(c.views)}">`)}
+        ${field('Likes',`<input id="c_likes" type="number" min="0" class="input" value="${num(c.likes)}">`)}
+        ${field('Respuestas',`<input id="c_replies" type="number" min="0" class="input" value="${num(c.replies)}">`)}
+        ${field('Reposts',`<input id="c_reposts" type="number" min="0" class="input" value="${num(c.reposts)}">`)}
+        ${field('Quotes',`<input id="c_quotes" type="number" min="0" class="input" value="${num(c.quotes)}">`)}
+        ${field('Seguidores estimados',`<input class="input" value="${estimated.value}" readonly title="Estimación por snapshots">`)}
+      </div>
+    </div>`:''}
+
+    ${field('Notas: qué funcionó / observaciones',`<textarea id="c_notes" class="input">${val(c.notes)}</textarea>`)}
+    <div class="modal-actions">
+      ${c.id?`<button type="button" class="btn danger" onclick="deleteContent(${c.id})">Eliminar</button>`:''}
+      <button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button>
+      <button id="c_save_btn" class="btn primary">Guardar publicación</button>
+    </div>
+  </form>`);
+
+  setTimeout(updateThreadsMediaInput,0);
+}
+
+function rerenderContentModal(id){
+  const original=id?state.content.find(x=>Number(x.id)===Number(id)):{},g=n=>document.getElementById(n),p=g('c_platform').value;
+  contentModal({
+    ...original,
+    date:g('c_date').value,platform:p,status:g('c_status').value,
+    objective:g('c_objective')?.value||'',type:g('c_type')?.value||'',topic:g('c_topic')?.value||'',
+    copy:g('c_copy')?.value||'',productId:+g('c_product')?.value||undefined,
+    image:g('c_image')?.value||original.image||undefined,
+    sourceIdeaId:+g('c_sourceIdeaId')?.value||original.sourceIdeaId||undefined,
+    publicationTime:g('c_time')?.value||original.publicationTime||'',
+    threadType:g('c_threadType')?.value||original.threadType||'',
+    mediaType:g('c_mediaType')?.value||original.mediaType||'TEXT',
+    threadAltText:g('c_thread_alt')?.value||original.threadAltText||''
+  });
+}
+
+async function saveContent(e,id){
+  e.preventDefault();
+  const g=n=>document.getElementById(n),p=g('c_platform').value;
+  const existing=id?state.content.find(x=>Number(x.id)===Number(id)):{};
+  const sourceIdeaId=+g('c_sourceIdeaId')?.value||existing.sourceIdeaId||undefined;
+  const saveBtn=g('c_save_btn');
+  if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='Guardando…';}
 
   try{
-    const session=await ensureSession(true);
-    if(!session?.access_token)throw new Error('Tu sesión del dashboard no está disponible. Cierra sesión y vuelve a entrar.');
+    const obj={
+      ...existing,
+      date:g('c_date').value,
+      dayLabel:id?(existing?.dayLabel||dayName(g('c_date').value)):dayName(g('c_date').value),
+      platform:p,status:g('c_status').value,objective:g('c_objective').value,
+      type:g('c_type').value,topic:g('c_topic').value,copy:g('c_copy').value,
+      productId:+g('c_product').value||undefined,
+      notes:g('c_notes').value,sourceIdeaId
+    };
 
-    const res=await fetch(THREADS_PUBLISHER_URL,{
-      method:'POST',
-      headers:{
-        'apikey':SUPABASE_PUBLISHABLE_KEY,
-        'Authorization':'Bearer '+session.access_token,
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify({text:txt})
-    });
+    if(p==='Pinterest'){
+      Object.assign(obj,{
+        image:g('c_image')?.value||existing.image||undefined,
+        pinterestTitle:g('c_ptitle')?.value||obj.pinterestTitle||'',
+        pinterestDescription:g('c_pdesc')?.value||obj.pinterestDescription||'',
+        keywords:g('c_keywords')?.value||obj.keywords||'',
+        altText:g('c_alt')?.value||obj.altText||''
+      });
+    }else if(p==='Threads'){
+      const mediaType=g('c_mediaType')?.value||'TEXT';
+      const uploaded=await uploadSelectedThreadMedia();
+      const threadsMedia=uploaded??(Array.isArray(existing.threadsMedia)?existing.threadsMedia:[]);
 
-    const body=await res.json().catch(()=>({}));
-    if(!res.ok || !body?.ok){
-      const detail=body?.error?.error?.message||body?.error?.message||body?.error||`HTTP ${res.status}`;
-      throw new Error(typeof detail==='string'?detail:JSON.stringify(detail));
+      if(mediaType==='IMAGE' && threadsMedia.length!==1)throw new Error('Para Imagen necesitas guardar exactamente 1 archivo.');
+      if(mediaType==='VIDEO' && (threadsMedia.length!==1 || threadsMedia[0]?.kind!=='VIDEO'))throw new Error('Para Video necesitas guardar exactamente 1 MP4.');
+      if(mediaType==='CAROUSEL' && (threadsMedia.length<2 || threadsMedia.length>10))throw new Error('Para Carrusel necesitas entre 2 y 10 archivos.');
+
+      Object.assign(obj,{
+        publicationTime:g('c_time')?.value||obj.publicationTime||'',
+        threadType:g('c_threadType')?.value||obj.threadType||'',
+        mediaType,
+        threadsMedia:mediaType==='TEXT'?[]:threadsMedia,
+        threadAltText:g('c_thread_alt')?.value||'',
+        hasImage:mediaType==='IMAGE'||mediaType==='CAROUSEL',
+        image:(mediaType==='IMAGE'&&threadsMedia[0]?.url)?threadsMedia[0].url:(existing.image||undefined),
+        views:+g('c_views')?.value||0,likes:+g('c_likes')?.value||0,
+        replies:+g('c_replies')?.value||0,reposts:+g('c_reposts')?.value||0,
+        quotes:+g('c_quotes')?.value||0
+      });
     }
 
-    result.className='publisher-test-result ok';
-    result.innerHTML=`✅ Publicado correctamente.\n\nThread ID: ${esc(body.thread_id||'—')}${body.permalink?`\n\n<a href="${esc(body.permalink)}" target="_blank" rel="noopener">Abrir publicación ↗</a>`:''}`;
-    toast('Thread publicado correctamente ✓');
-  }catch(e){
-    console.error(e);
-    result.className='publisher-test-result err';
-    result.textContent='❌ '+(e?.message||String(e));
-  }finally{
-    btn.disabled=false;
-    btn.textContent='Publicar prueba en Threads';
+    let contentId;
+    if(id){obj.id=id;await put('content',obj);contentId=id}
+    else contentId=await add('content',obj);
+
+    const linked=await syncIdeaFromCalendarContent(obj,contentId);
+    closeModal();await refresh();render();
+    toast(linked&&obj.status==='Publicado'?'Publicación guardada · idea movida a ✅ Publicada':'Publicación guardada ✓');
+  }catch(err){
+    console.error(err);
+    toast('Error: '+(err?.message||String(err)));
+    if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Guardar publicación';}
   }
 }
 
