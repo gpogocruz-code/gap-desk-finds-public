@@ -991,7 +991,7 @@
 
 
 <style id="v190-idea-bank">
-/* GAP Desk Finds · V1.11.1 · Banco de Ideas estratégico */
+/* GAP Desk Finds · V1.11.2 · Banco de Ideas estratégico */
 .idea-bank-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
 .idea-bank-head h2{margin:0;font-size:28px}
 .idea-bank-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -1035,7 +1035,7 @@
 
 
 <style id="v1100-calendar-styles">
-/* GAP Desk Finds · V1.11.1 · Calendario */
+/* GAP Desk Finds · V1.11.2 · Calendario */
 .month-event{position:relative;display:flex;align-items:flex-start;gap:6px;padding-right:20px}
 .month-event.threads{background:rgba(15,15,18,.10)!important;color:#151515!important;border:1px solid rgba(15,15,18,.06)}
 .month-event.pinterest{background:rgba(230,0,35,.10)!important;color:#9d0018!important;border:1px solid rgba(230,0,35,.08)}
@@ -1057,7 +1057,7 @@
 
 
 <style id="v1110-weekly-audit-styles">
-/* GAP Desk Finds · V1.11.1 · Auditoría semanal */
+/* GAP Desk Finds · V1.11.2 · Auditoría semanal */
 .weekly-audit-wrap{display:grid;gap:18px}
 .weekly-audit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .weekly-audit-head h2{margin:0;font-size:23px}
@@ -1122,6 +1122,17 @@
   .audit-plan-grid{grid-template-columns:1fr}
   .audit-mini-kpis{grid-template-columns:1fr 1fr}
 }
+</style>
+
+
+<style id="v1112-publisher-test-styles">
+.publisher-test-card{margin-top:18px}
+.publisher-test-grid{display:grid;grid-template-columns:1.4fr .6fr;gap:14px;align-items:start}
+.publisher-test-card textarea{min-height:110px;resize:vertical}
+.publisher-test-result{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff8fb;min-height:110px;font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+.publisher-test-result.ok{background:#f2fbf5;border-color:#cfe9d7;color:#216b3d}
+.publisher-test-result.err{background:#fff5f3;border-color:#f1c8c1;color:#a13c2d}
+@media(max-width:760px){.publisher-test-grid{grid-template-columns:1fr}}
 </style>
 
 </head>
@@ -4153,7 +4164,7 @@ function settingsView(){
     <div class="card integration-card"><div class="connection-row"><div><div class="category">🛍️ Amazon</div><h3 style="margin:5px 0 0">Reporting API</h3></div>${connectionBadge('pending')}</div><p class="muted">Preparado para clicks, pedidos, conversión, earnings y revenue cuando la cuenta sea elegible.</p></div>
   </div>
   <div class="api-pending-box" style="margin-top:18px"><b>⏸️ Tracking alternativo en pausa</b><span>No se generan links medibles ni redirects intermedios.</span><small>Cuando tengamos acceso a Pinterest API y Amazon Reporting/Creators API conectaremos los datos oficiales directamente a Supabase y a estas columnas ya reservadas.</small></div>
-  <div class="section-head" style="margin-top:28px"><div><h2 style="font-size:20px">Backup de tu nube privada</h2><p>Puedes exportar o restaurar publicaciones, productos e ideas.</p></div></div>
+  ${threadsPublisherTestCard()}<div class="section-head" style="margin-top:28px"><div><h2 style="font-size:20px">Backup de tu nube privada</h2><p>Puedes exportar o restaurar publicaciones, productos e ideas.</p></div></div>
   <div class="grid data-grid gap20"><div class="card p24"><div style="font-size:25px">⬇️</div><h3>Exportar backup</h3><p class="muted">Descarga una copia JSON de tus datos actuales en Supabase.</p><button class="btn primary" onclick="exportBackup()">⬇️ Descargar backup</button></div><div class="card p24"><div style="font-size:25px">⬆️</div><h3>Importar backup</h3><p class="muted">Restaura un backup previo. Reemplazará los datos de estas tres colecciones privadas.</p><label class="btn secondary">⬆️ Elegir archivo<input class="hidden" type="file" accept="application/json" onchange="importBackup(this.files[0])"></label></div><div class="card p24"><div style="font-size:25px">🧳</div><h3>Recuperar datos anteriores</h3><p class="muted">Busca el registro editorial previo y lo copia a Supabase si tu nube está vacía.</p><button class="btn secondary" onclick="manualLegacyMigration()">🧳 Buscar datos locales</button></div></div>`;
 }
 
@@ -4168,7 +4179,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.1</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.2</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4252,7 +4263,7 @@ function homeView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.11.1
+// GAP DESK FINDS · V1.11.2
 // Banco de Ideas: Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado
 // ============================================================
 const IDEA_STATUSES=['Idea','En creación','Planificada','Publicada'];
@@ -4363,7 +4374,7 @@ async function convertIdea(id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.11.1
+// GAP DESK FINDS · V1.11.2
 // Calendario funcional + Banco de Ideas planificadas
 // ============================================================
 
@@ -4463,7 +4474,7 @@ function shell(body){
   const subtitle=(state.section==='home'||state.section==='calendar')?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.1</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.11.2</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4556,7 +4567,7 @@ async function saveContent(e,id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.11.1
+// GAP DESK FINDS · V1.11.2
 // FIX: activa la pestaña de Auditoría semanal
 // ============================================================
 
@@ -4731,6 +4742,91 @@ function analyticsView(){
   else if(analyticsPlatform==='amazon')body=amazonAnalyticsCard();
   else body=weeklyAuditCard();
   return `<div class="section-head"><div><h2>Analytics por plataforma</h2><p>Rendimiento por canal y auditoría semanal automática.</p></div></div>${analyticsTabs()}${body}`;
+}
+
+
+
+// ============================================================
+// GAP DESK FINDS · V1.11.2
+// Prueba segura del publicador de Threads
+// ============================================================
+
+const THREADS_PUBLISHER_URL=SUPABASE_URL+'/functions/v1/threads-publisher';
+
+function threadsPublisherTestCard(){
+  return `<div class="card p24 publisher-test-card">
+    <div class="section-head">
+      <div>
+        <h2 style="font-size:20px">🧪 Prueba de publicación en Threads</h2>
+        <p>Publica un Thread de texto usando tu sesión privada. Úsalo solo para comprobar el nuevo permiso antes de activar programación automática.</p>
+      </div>
+      <span class="connection-badge ok"><span class="dot"></span>Protegido</span>
+    </div>
+    <div class="publisher-test-grid">
+      <div>
+        <label style="font-size:11px;font-weight:850">Texto de prueba</label>
+        <textarea id="threads_test_text" class="input" maxlength="500" placeholder="Escribe un Thread de prueba…"></textarea>
+        <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:10px">
+          <button id="threads_test_btn" class="btn primary" onclick="testThreadsPublisher()">Publicar prueba en Threads</button>
+          <small class="muted">Se publicará realmente en @ann_pc_28.</small>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:850">Resultado</label>
+        <div id="threads_test_result" class="publisher-test-result">Aún no se ha ejecutado ninguna prueba.</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function testThreadsPublisher(){
+  const txt=document.getElementById('threads_test_text')?.value?.trim()||'';
+  const result=document.getElementById('threads_test_result');
+  const btn=document.getElementById('threads_test_btn');
+
+  if(!txt){
+    result.className='publisher-test-result err';
+    result.textContent='Escribe primero el texto de prueba.';
+    return;
+  }
+  if(!confirm('Esto publicará REALMENTE este texto en tu cuenta de Threads. ¿Continuar?'))return;
+
+  btn.disabled=true;
+  btn.textContent='Publicando…';
+  result.className='publisher-test-result';
+  result.textContent='Conectando con Threads…';
+
+  try{
+    const session=await ensureSession(true);
+    if(!session?.access_token)throw new Error('Tu sesión del dashboard no está disponible. Cierra sesión y vuelve a entrar.');
+
+    const res=await fetch(THREADS_PUBLISHER_URL,{
+      method:'POST',
+      headers:{
+        'apikey':SUPABASE_PUBLISHABLE_KEY,
+        'Authorization':'Bearer '+session.access_token,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({text:txt})
+    });
+
+    const body=await res.json().catch(()=>({}));
+    if(!res.ok || !body?.ok){
+      const detail=body?.error?.error?.message||body?.error?.message||body?.error||`HTTP ${res.status}`;
+      throw new Error(typeof detail==='string'?detail:JSON.stringify(detail));
+    }
+
+    result.className='publisher-test-result ok';
+    result.innerHTML=`✅ Publicado correctamente.\n\nThread ID: ${esc(body.thread_id||'—')}${body.permalink?`\n\n<a href="${esc(body.permalink)}" target="_blank" rel="noopener">Abrir publicación ↗</a>`:''}`;
+    toast('Thread publicado correctamente ✓');
+  }catch(e){
+    console.error(e);
+    result.className='publisher-test-result err';
+    result.textContent='❌ '+(e?.message||String(e));
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Publicar prueba en Threads';
+  }
 }
 
 
