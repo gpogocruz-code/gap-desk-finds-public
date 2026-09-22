@@ -991,7 +991,7 @@
 
 
 <style id="v190-idea-bank">
-/* GAP Desk Finds · V1.12.0 · Banco de Ideas estratégico */
+/* GAP Desk Finds · V1.13.0 · Banco de Ideas estratégico */
 .idea-bank-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
 .idea-bank-head h2{margin:0;font-size:28px}
 .idea-bank-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -1035,7 +1035,7 @@
 
 
 <style id="v1100-calendar-styles">
-/* GAP Desk Finds · V1.12.0 · Calendario */
+/* GAP Desk Finds · V1.13.0 · Calendario */
 .month-event{position:relative;display:flex;align-items:flex-start;gap:6px;padding-right:20px}
 .month-event.threads{background:rgba(15,15,18,.10)!important;color:#151515!important;border:1px solid rgba(15,15,18,.06)}
 .month-event.pinterest{background:rgba(230,0,35,.10)!important;color:#9d0018!important;border:1px solid rgba(230,0,35,.08)}
@@ -1057,7 +1057,7 @@
 
 
 <style id="v1110-weekly-audit-styles">
-/* GAP Desk Finds · V1.12.0 · Auditoría semanal */
+/* GAP Desk Finds · V1.13.0 · Auditoría semanal */
 .weekly-audit-wrap{display:grid;gap:18px}
 .weekly-audit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .weekly-audit-head h2{margin:0;font-size:23px}
@@ -1158,6 +1158,64 @@
   color:var(--muted);font-size:10px;display:none
 }
 .upload-progress.show{display:block}
+</style>
+
+
+<style id="v1300-scheduler-styles">
+.auto-publish-box{
+  margin:12px 0 14px;
+  border:1px solid var(--line);
+  background:#fff7fa;
+  border-radius:16px;
+  padding:13px 14px;
+}
+.auto-publish-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.auto-publish-copy b{display:block;font-size:12px}
+.auto-publish-copy small{display:block;margin-top:4px;color:var(--muted);font-size:10px;line-height:1.4}
+.auto-switch{
+  position:relative;
+  width:46px;
+  height:26px;
+  flex:0 0 46px;
+}
+.auto-switch input{opacity:0;width:0;height:0}
+.auto-slider{
+  position:absolute;inset:0;
+  background:#e9dce1;
+  border-radius:999px;
+  cursor:pointer;
+  transition:.18s;
+  border:1px solid var(--line);
+}
+.auto-slider:before{
+  content:"";
+  position:absolute;
+  width:20px;height:20px;
+  left:2px;top:2px;
+  background:#fff;border-radius:50%;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
+  transition:.18s;
+}
+.auto-switch input:checked + .auto-slider{background:var(--rose600);border-color:var(--rose600)}
+.auto-switch input:checked + .auto-slider:before{transform:translateX(20px)}
+.auto-schedule-status{
+  margin-top:10px;
+  padding:9px 10px;
+  border-radius:12px;
+  font-size:10px;
+  line-height:1.35;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--muted);
+}
+.auto-schedule-status.scheduled{background:#fff9e8;border-color:#f2dfaa;color:#886a12}
+.auto-schedule-status.published{background:#effaf3;border-color:#cce8d6;color:#247345}
+.auto-schedule-status.error{background:#fff3f1;border-color:#efc7c0;color:#a13d2f}
 </style>
 
 </head>
@@ -4204,7 +4262,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.12.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.0</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4288,7 +4346,7 @@ function homeView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.12.0
+// GAP DESK FINDS · V1.13.0
 // Banco de Ideas: Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado
 // ============================================================
 const IDEA_STATUSES=['Idea','En creación','Planificada','Publicada'];
@@ -4399,7 +4457,7 @@ async function convertIdea(id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.12.0
+// GAP DESK FINDS · V1.13.0
 // Calendario funcional + Banco de Ideas planificadas
 // ============================================================
 
@@ -4499,7 +4557,7 @@ function shell(body){
   const subtitle=(state.section==='home'||state.section==='calendar')?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.12.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.0</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4592,7 +4650,7 @@ async function saveContent(e,id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.12.0
+// GAP DESK FINDS · V1.13.0
 // FIX: activa la pestaña de Auditoría semanal
 // ============================================================
 
@@ -4772,7 +4830,7 @@ function analyticsView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.12.0
+// GAP DESK FINDS · V1.13.0
 // Threads media → Supabase Storage (threads-media)
 // ============================================================
 
@@ -5034,6 +5092,333 @@ async function saveContent(e,id){
     const linked=await syncIdeaFromCalendarContent(obj,contentId);
     closeModal();await refresh();render();
     toast(linked&&obj.status==='Publicado'?'Publicación guardada · idea movida a ✅ Publicada':'Publicación guardada ✓');
+  }catch(err){
+    console.error(err);
+    toast('Error: '+(err?.message||String(err)));
+    if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Guardar publicación';}
+  }
+}
+
+
+
+// ============================================================
+// GAP DESK FINDS · V1.13.0
+// Programación automática de Threads
+// ============================================================
+
+const THREADS_SCHEDULE_TABLE='threads_scheduled_posts';
+
+function scheduleIsoEcuador(date,time){
+  if(!date||!time)return '';
+  return `${date}T${time}:00-05:00`;
+}
+
+function scheduleStatusLabel(c){
+  const s=String(c?.autoPublishStatus||'').toLowerCase();
+  if(s==='published')return {cls:'published',text:'✅ Publicado automáticamente por GAP Desk Finds.'};
+  if(s==='error')return {cls:'error',text:`⚠️ Error de publicación automática${c?.autoPublishError?': '+c.autoPublishError:''}`};
+  if(s==='scheduled'){
+    const when=c?.scheduledFor ? new Date(c.scheduledFor).toLocaleString('es-EC',{dateStyle:'medium',timeStyle:'short'}) : '';
+    return {cls:'scheduled',text:`🕒 Programado${when?' para '+when:''}. El sistema revisa la cola cada minuto.`};
+  }
+  return {cls:'',text:'La publicación se guardará como Pendiente y se enviará automáticamente a Threads en la fecha y hora indicadas.'};
+}
+
+async function scheduleRowsForContent(contentId){
+  if(!contentId)return [];
+  const res=await cloudFetch(`/rest/v1/${THREADS_SCHEDULE_TABLE}?content_id=eq.${encodeURIComponent(contentId)}&select=*&order=created_at.desc&limit=5`);
+  if(!res.ok)throw new Error('No pude consultar la programación de Threads.');
+  return await res.json();
+}
+
+async function cancelScheduledRows(contentId){
+  if(!contentId)return;
+  const filter=encodeURIComponent('scheduled,error');
+  const res=await cloudFetch(`/rest/v1/${THREADS_SCHEDULE_TABLE}?content_id=eq.${encodeURIComponent(contentId)}&schedule_status=in.(${filter})`,{
+    method:'PATCH',
+    headers:{'Prefer':'return=minimal'},
+    body:JSON.stringify({schedule_status:'cancelled',updated_at:new Date().toISOString()})
+  });
+  if(!res.ok){
+    const body=await res.text();
+    console.warn('cancel schedule',body);
+  }
+}
+
+async function upsertThreadSchedule(contentId,obj){
+  const rows=await scheduleRowsForContent(contentId);
+  const editable=rows.find(r=>['scheduled','error','cancelled'].includes(String(r.schedule_status||'')));
+  const payload={
+    content_id:Number(contentId),
+    scheduled_for:obj.scheduledFor,
+    media_type:obj.mediaType||'TEXT',
+    text_content:obj.copy||'',
+    media:(Array.isArray(obj.threadsMedia)?obj.threadsMedia:[]).map(m=>({
+      url:m.url,
+      kind:m.kind,
+      alt_text:m.alt_text||obj.threadAltText||'',
+      name:m.name||''
+    })),
+    alt_text:obj.threadAltText||'',
+    schedule_status:'scheduled',
+    attempts:0,
+    last_error:null,
+    updated_at:new Date().toISOString()
+  };
+
+  if(editable){
+    const res=await cloudFetch(`/rest/v1/${THREADS_SCHEDULE_TABLE}?id=eq.${encodeURIComponent(editable.id)}`,{
+      method:'PATCH',
+      headers:{'Prefer':'return=representation'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok)throw new Error('No pude actualizar la publicación programada.');
+    return (await res.json())?.[0];
+  }
+
+  const res=await cloudFetch(`/rest/v1/${THREADS_SCHEDULE_TABLE}`,{
+    method:'POST',
+    headers:{'Prefer':'return=representation'},
+    body:JSON.stringify(payload)
+  });
+  if(!res.ok){
+    const body=await res.text();
+    console.error('schedule insert',body);
+    throw new Error('No pude agregar la publicación a la cola automática.');
+  }
+  return (await res.json())?.[0];
+}
+
+function updateAutoPublishUI(){
+  const checked=!!document.getElementById('c_autoPublish')?.checked;
+  const time=document.getElementById('c_time');
+  const status=document.getElementById('c_status');
+  const note=document.getElementById('c_auto_note');
+  if(time)time.required=checked;
+  if(status&&checked&&status.value==='Publicado')status.value='Pendiente';
+  if(note){
+    note.textContent=checked
+      ? 'Fecha + hora obligatorias. Se publicará automáticamente en horario de Ecuador (UTC-5).'
+      : 'Desactivado: el contenido solo quedará guardado en tu calendario.';
+  }
+}
+
+function contentModal(c){
+  c=c.platform==='Threads'?hydrateThreadRecord(c):c;
+  const isP=c.platform==='Pinterest',isT=c.platform==='Threads',estimated=isT?threadFollowerEstimate(c):{value:0},status=normalizedContentStatus(c.status);
+  const existingMedia=Array.isArray(c.threadsMedia)?c.threadsMedia:[];
+  const inferredMediaType=c.mediaType||(existingMedia.length>1?'CAROUSEL':existingMedia[0]?.kind||((c.image&&isT)?'IMAGE':'TEXT'));
+  const scheduleInfo=scheduleStatusLabel(c);
+  const autoChecked=!!c.autoPublish && status!=='Publicado' && String(c.autoPublishStatus||'')!=='published';
+
+  modal(c.id?'Editar publicación':'Nueva publicación',`<form class="modal-body" onsubmit="saveContent(event,${c.id||'null'})">
+    <input id="c_sourceIdeaId" type="hidden" value="${val(c.sourceIdeaId||'')}">
+    <div class="grid field-grid-3 gap12">
+      ${field('Fecha',`<input id="c_date" type="date" class="input" value="${val(c.date||today())}" required>`)}
+      ${field('Plataforma',`<select id="c_platform" class="input" onchange="rerenderContentModal(${c.id||'null'})">${['Threads','Pinterest','Instagram','TikTok','Otro'].map(x=>`<option ${c.platform===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+      ${field('Estado',`<select id="c_status" class="input" onchange="updateAutoPublishUI()"><option value="Pendiente" ${status==='Pendiente'?'selected':''}>Pendiente</option><option value="Publicado" ${status==='Publicado'?'selected':''}>Publicado</option></select>`)}
+    </div>
+
+    ${isT?`<div class="thread-meta-fields">
+      ${field('Hora de publicación',`<input id="c_time" type="time" class="input" value="${val(c.publicationTime||(!c.id?'':threadTimeValue(c).replace('—','')))}">`)}
+      ${field('Tipo de Thread',`<select id="c_threadType" class="input"><option value="">Selecciona un tipo</option>${THREAD_TYPES.map(x=>`<option value="${esc(x)}" ${(c.threadType||'')===x?'selected':''}>${esc(x)}</option>`).join('')}</select>`)}
+      ${field('Tipo de publicación',`<select id="c_mediaType" class="input" onchange="updateThreadsMediaInput()">${['TEXT','IMAGE','VIDEO','CAROUSEL'].map(x=>`<option value="${x}" ${inferredMediaType===x?'selected':''}>${x==='TEXT'?'Texto':x==='IMAGE'?'Imagen':x==='VIDEO'?'Video':'Carrusel'}</option>`).join('')}</select>`)}
+    </div>
+    <div class="auto-publish-box">
+      <div class="auto-publish-row">
+        <div class="auto-publish-copy">
+          <b>🚀 Publicar automáticamente en Threads</b>
+          <small>GAP Desk Finds publicará este contenido aunque tu computadora esté apagada. El Cron revisa la cola cada minuto.</small>
+        </div>
+        <label class="auto-switch">
+          <input id="c_autoPublish" type="checkbox" ${autoChecked?'checked':''} ${status==='Publicado'?'disabled':''} onchange="updateAutoPublishUI()">
+          <span class="auto-slider"></span>
+        </label>
+      </div>
+      <div id="c_auto_note" class="auto-schedule-status ${scheduleInfo.cls}">${esc(scheduleInfo.text)}</div>
+    </div>`:''}
+
+    <div class="grid field-grid-3 gap12">
+      ${field('Objetivo del contenido',`<select id="c_objective" class="input" required><option value="">Selecciona un objetivo</option>${CONTENT_OBJECTIVES.map(x=>`<option value="${x}" ${objectiveSelectValue(c)===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+      ${field(isT?'Formato / estilo':'Tipo / formato',`<input id="c_type" class="input" value="${val(c.type)}" placeholder="${isT?'Texto, foto real, carrusel…':'Foto real, pregunta, carrusel…'}">`)}
+      ${field('Tema',`<input id="c_topic" class="input" value="${val(c.topic)}" placeholder="Real setup, organización…">`)}
+    </div>
+
+    ${field(isP?'Copy / nota interna':'Copy',`<textarea id="c_copy" class="input" placeholder="Texto de la publicación…">${val(c.copy)}</textarea>`)}
+
+    ${isT?`
+      <div class="grid field-grid-2 gap12">
+        ${field('Producto mencionado',`<select id="c_product" class="input"><option value="">Sin producto</option>${state.products.map(p=>`<option value="${p.id}" ${Number(c.productId)===Number(p.id)?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`)}
+        ${field('Alt text del medio',`<input id="c_thread_alt" class="input" value="${val(c.threadAltText||'')}" placeholder="Describe la imagen o video…">`)}
+      </div>
+      <div class="threads-media-box">
+        <b>📦 Medio para Threads</b>
+        <span class="media-help">Las imágenes y videos se subirán a Supabase Storage al guardar. Meta podrá leerlos desde una URL pública, pero solo tu usuario puede subir o borrar archivos.</span>
+        <div id="c_media_file_wrap" style="${inferredMediaType==='TEXT'?'display:none':''};margin-top:10px">
+          <input id="c_threads_media_files" type="file" class="input" accept="${threadsMediaAccept(inferredMediaType)}" ${inferredMediaType==='CAROUSEL'?'multiple':''}>
+          <small class="media-help">Imagen: 1 archivo · Video: MP4 · Carrusel: 2–10 imágenes/videos · máximo 50 MB por archivo.</small>
+        </div>
+        ${threadsMediaListHTML(existingMedia)}
+        ${existingMedia.length?`<span class="threads-media-ready">✓ ${existingMedia.length} archivo${existingMedia.length===1?'':'s'} ya guardado${existingMedia.length===1?'':'s'}</span>`:''}
+        <div id="c_upload_progress" class="upload-progress"></div>
+      </div>
+    `:`
+      <div class="grid field-grid-2 gap12">
+        ${field('Producto relacionado',`<select id="c_product" class="input"><option value="">Sin producto</option>${state.products.map(p=>`<option value="${p.id}" ${Number(c.productId)===Number(p.id)?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`)}
+        ${field('Imagen',`<input id="c_image_file" type="file" accept="image/*" class="input" onchange="previewContentImage(this)">`)}
+      </div>
+      ${c.image?`<img id="c_preview" class="image-preview" src="${c.image}"><input type="hidden" id="c_image" value="${c.image}">`:`<img id="c_preview" class="image-preview hidden"><input type="hidden" id="c_image">`}
+    `}
+
+    ${isP?`<div class="subbox"><b style="color:var(--rose700)">Campos Pinterest</b>
+      ${field('Título',`<input id="c_ptitle" class="input" value="${val(c.pinterestTitle)}">`)}
+      ${field('Descripción',`<textarea id="c_pdesc" class="input">${val(c.pinterestDescription)}</textarea>`)}
+      <div class="grid field-grid-2 gap12">${field('Keywords',`<input id="c_keywords" class="input" value="${val(c.keywords)}">`)}${field('Alt text',`<input id="c_alt" class="input" value="${val(c.altText)}">`)}</div>
+      <div class="api-pending-box"><b>📌 Métricas Pinterest preparadas</b><span>Impresiones · Guardados · Pin clicks · Outbound clicks</span><small>Se completarán automáticamente cuando se apruebe Trial Access.</small></div>
+    </div>`:''}
+
+    ${isT?`<div class="subbox"><b>Métricas${c._liveMatched?' · 🟢 sincronizadas desde Threads API':''}</b>
+      <div class="thread-metrics-fields">
+        ${field('Visualizaciones',`<input id="c_views" type="number" min="0" class="input" value="${num(c.views)}">`)}
+        ${field('Likes',`<input id="c_likes" type="number" min="0" class="input" value="${num(c.likes)}">`)}
+        ${field('Respuestas',`<input id="c_replies" type="number" min="0" class="input" value="${num(c.replies)}">`)}
+        ${field('Reposts',`<input id="c_reposts" type="number" min="0" class="input" value="${num(c.reposts)}">`)}
+        ${field('Quotes',`<input id="c_quotes" type="number" min="0" class="input" value="${num(c.quotes)}">`)}
+        ${field('Seguidores estimados',`<input class="input" value="${estimated.value}" readonly title="Estimación por snapshots">`)}
+      </div>
+    </div>`:''}
+
+    ${field('Notas: qué funcionó / observaciones',`<textarea id="c_notes" class="input">${val(c.notes)}</textarea>`)}
+    <div class="modal-actions">
+      ${c.id?`<button type="button" class="btn danger" onclick="deleteContent(${c.id})">Eliminar</button>`:''}
+      <button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button>
+      <button id="c_save_btn" class="btn primary">Guardar publicación</button>
+    </div>
+  </form>`);
+
+  setTimeout(()=>{updateThreadsMediaInput();updateAutoPublishUI();},0);
+}
+
+function rerenderContentModal(id){
+  const original=id?state.content.find(x=>Number(x.id)===Number(id)):{},g=n=>document.getElementById(n),p=g('c_platform').value;
+  contentModal({
+    ...original,
+    date:g('c_date').value,platform:p,status:g('c_status').value,
+    objective:g('c_objective')?.value||'',type:g('c_type')?.value||'',topic:g('c_topic')?.value||'',
+    copy:g('c_copy')?.value||'',productId:+g('c_product')?.value||undefined,
+    image:g('c_image')?.value||original.image||undefined,
+    sourceIdeaId:+g('c_sourceIdeaId')?.value||original.sourceIdeaId||undefined,
+    publicationTime:g('c_time')?.value||original.publicationTime||'',
+    threadType:g('c_threadType')?.value||original.threadType||'',
+    mediaType:g('c_mediaType')?.value||original.mediaType||'TEXT',
+    threadAltText:g('c_thread_alt')?.value||original.threadAltText||'',
+    autoPublish:!!g('c_autoPublish')?.checked
+  });
+}
+
+async function saveContent(e,id){
+  e.preventDefault();
+  const g=n=>document.getElementById(n),p=g('c_platform').value;
+  const existing=id?state.content.find(x=>Number(x.id)===Number(id)):{};
+  const sourceIdeaId=+g('c_sourceIdeaId')?.value||existing.sourceIdeaId||undefined;
+  const saveBtn=g('c_save_btn');
+  if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='Guardando…';}
+
+  try{
+    const obj={
+      ...existing,
+      date:g('c_date').value,
+      dayLabel:id?(existing?.dayLabel||dayName(g('c_date').value)):dayName(g('c_date').value),
+      platform:p,status:g('c_status').value,objective:g('c_objective').value,
+      type:g('c_type').value,topic:g('c_topic').value,copy:g('c_copy').value,
+      productId:+g('c_product').value||undefined,
+      notes:g('c_notes').value,sourceIdeaId
+    };
+
+    let wantsAuto=false;
+
+    if(p==='Pinterest'){
+      Object.assign(obj,{
+        image:g('c_image')?.value||existing.image||undefined,
+        pinterestTitle:g('c_ptitle')?.value||obj.pinterestTitle||'',
+        pinterestDescription:g('c_pdesc')?.value||obj.pinterestDescription||'',
+        keywords:g('c_keywords')?.value||obj.keywords||'',
+        altText:g('c_alt')?.value||obj.altText||''
+      });
+    }else if(p==='Threads'){
+      const mediaType=g('c_mediaType')?.value||'TEXT';
+      const uploaded=await uploadSelectedThreadMedia();
+      const threadsMedia=uploaded??(Array.isArray(existing.threadsMedia)?existing.threadsMedia:[]);
+
+      if(mediaType==='IMAGE' && threadsMedia.length!==1)throw new Error('Para Imagen necesitas guardar exactamente 1 archivo.');
+      if(mediaType==='VIDEO' && (threadsMedia.length!==1 || threadsMedia[0]?.kind!=='VIDEO'))throw new Error('Para Video necesitas guardar exactamente 1 MP4.');
+      if(mediaType==='CAROUSEL' && (threadsMedia.length<2 || threadsMedia.length>10))throw new Error('Para Carrusel necesitas entre 2 y 10 archivos.');
+
+      wantsAuto=!!g('c_autoPublish')?.checked;
+      const publicationTime=g('c_time')?.value||'';
+      const scheduledFor=wantsAuto?scheduleIsoEcuador(obj.date,publicationTime):'';
+
+      if(wantsAuto){
+        if(obj.status==='Publicado')throw new Error('Una publicación ya marcada como Publicado no puede programarse nuevamente.');
+        if(!publicationTime)throw new Error('Selecciona la hora de publicación automática.');
+        const when=new Date(scheduledFor);
+        if(Number.isNaN(when.getTime()))throw new Error('La fecha u hora programada no es válida.');
+        if(when.getTime()<=Date.now()+30000)throw new Error('Programa la publicación al menos 1 minuto en el futuro.');
+      }
+
+      Object.assign(obj,{
+        publicationTime,
+        threadType:g('c_threadType')?.value||obj.threadType||'',
+        mediaType,
+        threadsMedia:mediaType==='TEXT'?[]:threadsMedia,
+        threadAltText:g('c_thread_alt')?.value||'',
+        hasImage:mediaType==='IMAGE'||mediaType==='CAROUSEL',
+        image:(mediaType==='IMAGE'&&threadsMedia[0]?.url)?threadsMedia[0].url:(existing.image||undefined),
+        autoPublish:wantsAuto,
+        autoPublishStatus:wantsAuto?'scheduled':(existing.autoPublishStatus==='published'?'published':''),
+        scheduledFor,
+        views:+g('c_views')?.value||0,likes:+g('c_likes')?.value||0,
+        replies:+g('c_replies')?.value||0,reposts:+g('c_reposts')?.value||0,
+        quotes:+g('c_quotes')?.value||0
+      });
+    }
+
+    let contentId;
+    if(id){
+      obj.id=id;
+      await put('content',obj);
+      contentId=id;
+    }else{
+      contentId=await add('content',obj);
+      obj.id=contentId;
+    }
+
+    if(p==='Threads'){
+      if(wantsAuto){
+        try{
+          await upsertThreadSchedule(contentId,obj);
+        }catch(scheduleErr){
+          obj.autoPublish=false;
+          obj.autoPublishStatus='error';
+          obj.autoPublishError=scheduleErr?.message||String(scheduleErr);
+          await put('content',obj);
+          throw scheduleErr;
+        }
+      }else{
+        await cancelScheduledRows(contentId);
+      }
+    }else if(existing?.platform==='Threads' && id){
+      await cancelScheduledRows(contentId);
+    }
+
+    const linked=await syncIdeaFromCalendarContent(obj,contentId);
+    closeModal();await refresh();render();
+
+    if(wantsAuto){
+      toast('Publicación programada automáticamente ✓');
+    }else{
+      toast(linked&&obj.status==='Publicado'?'Publicación guardada · idea movida a ✅ Publicada':'Publicación guardada ✓');
+    }
   }catch(err){
     console.error(err);
     toast('Error: '+(err?.message||String(err)));
