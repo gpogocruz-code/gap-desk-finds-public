@@ -991,7 +991,7 @@
 
 
 <style id="v190-idea-bank">
-/* GAP Desk Finds · V1.13.0 · Banco de Ideas estratégico */
+/* GAP Desk Finds · V1.13.1 · Banco de Ideas estratégico */
 .idea-bank-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
 .idea-bank-head h2{margin:0;font-size:28px}
 .idea-bank-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -1035,7 +1035,7 @@
 
 
 <style id="v1100-calendar-styles">
-/* GAP Desk Finds · V1.13.0 · Calendario */
+/* GAP Desk Finds · V1.13.1 · Calendario */
 .month-event{position:relative;display:flex;align-items:flex-start;gap:6px;padding-right:20px}
 .month-event.threads{background:rgba(15,15,18,.10)!important;color:#151515!important;border:1px solid rgba(15,15,18,.06)}
 .month-event.pinterest{background:rgba(230,0,35,.10)!important;color:#9d0018!important;border:1px solid rgba(230,0,35,.08)}
@@ -1057,7 +1057,7 @@
 
 
 <style id="v1110-weekly-audit-styles">
-/* GAP Desk Finds · V1.13.0 · Auditoría semanal */
+/* GAP Desk Finds · V1.13.1 · Auditoría semanal */
 .weekly-audit-wrap{display:grid;gap:18px}
 .weekly-audit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .weekly-audit-head h2{margin:0;font-size:23px}
@@ -4262,7 +4262,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.1</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4346,7 +4346,7 @@ function homeView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.0
+// GAP DESK FINDS · V1.13.1
 // Banco de Ideas: Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado
 // ============================================================
 const IDEA_STATUSES=['Idea','En creación','Planificada','Publicada'];
@@ -4457,7 +4457,7 @@ async function convertIdea(id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.0
+// GAP DESK FINDS · V1.13.1
 // Calendario funcional + Banco de Ideas planificadas
 // ============================================================
 
@@ -4557,7 +4557,7 @@ function shell(body){
   const subtitle=(state.section==='home'||state.section==='calendar')?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.1</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4650,7 +4650,7 @@ async function saveContent(e,id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.0
+// GAP DESK FINDS · V1.13.1
 // FIX: activa la pestaña de Auditoría semanal
 // ============================================================
 
@@ -4830,7 +4830,7 @@ function analyticsView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.0
+// GAP DESK FINDS · V1.13.1
 // Threads media → Supabase Storage (threads-media)
 // ============================================================
 
@@ -5102,7 +5102,7 @@ async function saveContent(e,id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.0
+// GAP DESK FINDS · V1.13.1
 // Programación automática de Threads
 // ============================================================
 
@@ -5424,6 +5424,53 @@ async function saveContent(e,id){
     toast('Error: '+(err?.message||String(err)));
     if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Guardar publicación';}
   }
+}
+
+
+
+// ============================================================
+// GAP DESK FINDS · V1.13.1
+// Analytics: elimina la pestaña Auditoría semanal
+// ============================================================
+
+function analyticsTabs(){
+  const items=[
+    {id:'threads',name:'Threads',sub:'Views · engagement',cls:'threads'},
+    {id:'pinterest',name:'Pinterest',sub:'Impresiones · clicks',cls:'pinterest'},
+    {id:'amazon',name:'Amazon Afiliados',sub:'Clicks · earnings',cls:'amazon'}
+  ];
+
+  if(!['threads','pinterest','amazon'].includes(analyticsPlatform)){
+    analyticsPlatform='threads';
+  }
+
+  return `<div class="analytics-platform-tabs">${items.map(x=>`
+    <button class="platform-tab ${x.cls} ${analyticsPlatform===x.id?'active':''}" onclick="setAnalyticsPlatform('${x.id}')">
+      <span class="platform-tab-left">
+        <img src="${platformLogo(x.id)}" alt="${x.name}">
+        <span><b>${x.name}</b><small>${x.sub}</small></span>
+      </span><span class="chev">›</span>
+    </button>`).join('')}</div>`;
+}
+
+function analyticsView(){
+  if(!['threads','pinterest','amazon'].includes(analyticsPlatform)){
+    analyticsPlatform='threads';
+  }
+
+  let body='';
+  if(analyticsPlatform==='threads')body=threadsAnalyticsCard();
+  else if(analyticsPlatform==='pinterest')body=pinterestAnalyticsCard();
+  else body=amazonAnalyticsCard();
+
+  return `<div class="section-head">
+    <div>
+      <h2>Analytics por plataforma</h2>
+      <p>Rendimiento por canal, manteniendo las métricas de cada plataforma por separado.</p>
+    </div>
+  </div>
+  ${analyticsTabs()}
+  ${body}`;
 }
 
 
