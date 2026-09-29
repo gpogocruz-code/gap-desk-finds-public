@@ -991,7 +991,7 @@
 
 
 <style id="v190-idea-bank">
-/* GAP Desk Finds · V1.13.1 · Banco de Ideas estratégico */
+/* GAP Desk Finds · V1.14.0 · Banco de Ideas estratégico */
 .idea-bank-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
 .idea-bank-head h2{margin:0;font-size:28px}
 .idea-bank-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -1035,7 +1035,7 @@
 
 
 <style id="v1100-calendar-styles">
-/* GAP Desk Finds · V1.13.1 · Calendario */
+/* GAP Desk Finds · V1.14.0 · Calendario */
 .month-event{position:relative;display:flex;align-items:flex-start;gap:6px;padding-right:20px}
 .month-event.threads{background:rgba(15,15,18,.10)!important;color:#151515!important;border:1px solid rgba(15,15,18,.06)}
 .month-event.pinterest{background:rgba(230,0,35,.10)!important;color:#9d0018!important;border:1px solid rgba(230,0,35,.08)}
@@ -1057,7 +1057,7 @@
 
 
 <style id="v1110-weekly-audit-styles">
-/* GAP Desk Finds · V1.13.1 · Auditoría semanal */
+/* GAP Desk Finds · V1.14.0 · Auditoría semanal */
 .weekly-audit-wrap{display:grid;gap:18px}
 .weekly-audit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .weekly-audit-head h2{margin:0;font-size:23px}
@@ -1216,6 +1216,60 @@
 .auto-schedule-status.scheduled{background:#fff9e8;border-color:#f2dfaa;color:#886a12}
 .auto-schedule-status.published{background:#effaf3;border-color:#cce8d6;color:#247345}
 .auto-schedule-status.error{background:#fff3f1;border-color:#efc7c0;color:#a13d2f}
+</style>
+
+
+<style id="v1400-pinterest-csv-styles">
+.pinterest-import-card{
+  border:1px solid #f3ccd3;
+  background:linear-gradient(135deg,#fff 0%,#fff7f9 100%);
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:16px;
+}
+.pinterest-import-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.pinterest-import-head h3{margin:3px 0 5px;font-size:17px}
+.pinterest-import-head p{margin:0;color:var(--muted);font-size:11px;max-width:720px;line-height:1.45}
+.pinterest-import-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.csv-source-pill{
+  display:inline-flex;align-items:center;gap:6px;border:1px solid #efc3cc;background:#fff;
+  color:#a22438;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:900;
+}
+.csv-import-meta{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:13px;
+}
+.csv-import-meta>div{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px}
+.csv-import-meta small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;font-weight:850}
+.csv-import-meta b{display:block;margin-top:4px;font-size:12px}
+.csv-import-status{margin-top:10px;font-size:10px;color:var(--muted)}
+.csv-import-status.ok{color:#267244}.csv-import-status.err{color:#a53e31}
+
+.pinterest-trend-card,.pinterest-board-card{margin-top:18px}
+.pinterest-trend-bars{
+  height:180px;display:flex;align-items:flex-end;gap:4px;padding:12px 4px 24px;
+  border-bottom:1px solid var(--line);overflow-x:auto;
+}
+.pinterest-trend-day{min-width:16px;flex:1;height:100%;display:flex;align-items:flex-end;position:relative}
+.pinterest-trend-bar{
+  width:100%;min-height:2px;border-radius:5px 5px 2px 2px;background:#e60023;opacity:.68;
+}
+.pinterest-trend-day:hover .pinterest-trend-bar{opacity:1}
+.pinterest-trend-day span{
+  position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+  font-size:8px;color:var(--muted);white-space:nowrap;
+}
+.pinterest-table-link{color:inherit;text-decoration:none}
+.pinterest-table-link:hover{text-decoration:underline}
+.pin-url-note{display:block;color:var(--muted);font-size:9px;margin-top:4px}
+.pin-csv-badge{
+  display:inline-flex;border-radius:999px;padding:4px 7px;background:#fff0f3;color:#a32239;
+  font-size:8px;font-weight:900;margin-top:5px;
+}
+@media(max-width:800px){
+  .csv-import-meta{grid-template-columns:1fr 1fr}
+}
 </style>
 
 </head>
@@ -4262,7 +4316,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.1</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.14.0</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4346,7 +4400,7 @@ function homeView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.1
+// GAP DESK FINDS · V1.14.0
 // Banco de Ideas: Pilar → Formato → Tema → Producto → Hook → Plataforma → Objetivo → Estado
 // ============================================================
 const IDEA_STATUSES=['Idea','En creación','Planificada','Publicada'];
@@ -4457,7 +4511,7 @@ async function convertIdea(id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.1
+// GAP DESK FINDS · V1.14.0
 // Calendario funcional + Banco de Ideas planificadas
 // ============================================================
 
@@ -4557,7 +4611,7 @@ function shell(body){
   const subtitle=(state.section==='home'||state.section==='calendar')?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.1</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.14.0</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4650,7 +4704,7 @@ async function saveContent(e,id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.1
+// GAP DESK FINDS · V1.14.0
 // FIX: activa la pestaña de Auditoría semanal
 // ============================================================
 
@@ -4830,7 +4884,7 @@ function analyticsView(){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.1
+// GAP DESK FINDS · V1.14.0
 // Threads media → Supabase Storage (threads-media)
 // ============================================================
 
@@ -5102,7 +5156,7 @@ async function saveContent(e,id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.1
+// GAP DESK FINDS · V1.14.0
 // Programación automática de Threads
 // ============================================================
 
@@ -5429,7 +5483,7 @@ async function saveContent(e,id){
 
 
 // ============================================================
-// GAP DESK FINDS · V1.13.1
+// GAP DESK FINDS · V1.14.0
 // Analytics: elimina la pestaña Auditoría semanal
 // ============================================================
 
@@ -5471,6 +5525,557 @@ function analyticsView(){
   </div>
   ${analyticsTabs()}
   ${body}`;
+}
+
+
+
+// ============================================================
+// GAP DESK FINDS · V1.14.0
+// Pinterest Analytics oficial por importación CSV
+// ============================================================
+
+let pinterestCsvCache={loaded:false,importInfo:null,daily:[],pins:[],boards:[]};
+let pinterestCsvTrendMetric='impressions';
+let pinterestCsvImportMessage='';
+
+const PINTEREST_CSV_METRICS={
+  'impressions':'impressions',
+  'engagement':'engagements',
+  'engagements':'engagements',
+  'pin clicks':'pin_clicks',
+  'outbound clicks':'outbound_clicks',
+  'saves':'saves',
+  'impresiones':'impressions',
+  'engagements':'engagements',
+  'clics en el pin':'pin_clicks',
+  'clics salientes':'outbound_clicks',
+  'pines guardados':'saves'
+};
+
+function pinterestMetricKey(label){
+  return PINTEREST_CSV_METRICS[String(label||'').trim().toLowerCase()]||'';
+}
+function pinterestMetricPretty(key){
+  return {
+    impressions:'Impresiones',
+    engagements:'Engagements',
+    pin_clicks:'Clics en el Pin',
+    outbound_clicks:'Clics salientes',
+    saves:'Pines guardados'
+  }[key]||key;
+}
+
+function parseCsvRows(text){
+  const rows=[]; let row=[],field='',quoted=false;
+  const src=String(text||'').replace(/^\uFEFF/,'');
+  for(let i=0;i<src.length;i++){
+    const ch=src[i];
+    if(quoted){
+      if(ch==='"'){
+        if(src[i+1]==='"'){field+='"';i++}
+        else quoted=false;
+      }else field+=ch;
+      continue;
+    }
+    if(ch==='"'){quoted=true;continue}
+    if(ch===','){row.push(field);field='';continue}
+    if(ch==='\n'){
+      row.push(field); rows.push(row); row=[]; field=''; continue;
+    }
+    if(ch==='\r')continue;
+    field+=ch;
+  }
+  if(field.length||row.length){row.push(field);rows.push(row)}
+  return rows;
+}
+
+function boardNameFromPinterestUrl(url){
+  try{
+    const u=new URL(url);
+    const parts=u.pathname.split('/').filter(Boolean);
+    let slug=decodeURIComponent(parts[parts.length-1]||'Tablero');
+    slug=slug.replace(/^_+|_+$/g,'').replace(/[-_]+/g,' ').trim();
+    return slug?slug.replace(/\b\w/g,m=>m.toUpperCase()):'Tablero';
+  }catch{return String(url||'Tablero')}
+}
+
+async function parsePinterestCsvFile(file){
+  const text=await file.text();
+  const rows=parseCsvRows(text);
+  const periodCell=(rows.find(r=>/^\d{4}-\d{2}-\d{2}\s*-\s*\d{4}-\d{2}-\d{2}$/.test(String(r[0]||'').trim()))||[])[0]||'';
+  const pm=String(periodCell).match(/(\d{4}-\d{2}-\d{2})\s*-\s*(\d{4}-\d{2}-\d{2})/);
+  if(!pm)throw new Error(`${file.name}: no pude detectar el periodo.`);
+  const period_start=pm[1],period_end=pm[2];
+
+  const dateIdx=rows.findIndex(r=>String(r[0]||'').trim().toLowerCase()==='date');
+  if(dateIdx<0)throw new Error(`${file.name}: no encontré la serie diaria.`);
+  const metricLabel=String(rows[dateIdx][1]||'').trim();
+  const metricKey=pinterestMetricKey(metricLabel);
+  if(!metricKey)throw new Error(`${file.name}: métrica no reconocida (${metricLabel}).`);
+
+  const daily=[];
+  for(let i=dateIdx+1;i<rows.length;i++){
+    const d=String(rows[i][0]||'').trim();
+    if(/^Top Boards/i.test(d)||/^Top Pins/i.test(d))break;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(d)){
+      daily.push({metric_date:d,value:Number(String(rows[i][1]||'0').replace(/,/g,''))||0});
+    }
+  }
+
+  const boardTitleIdx=rows.findIndex(r=>/^Top Boards/i.test(String(r[0]||'').trim()));
+  const boards=[];
+  if(boardTitleIdx>=0){
+    const header=rows[boardTitleIdx+1]||[];
+    const hi={};
+    header.forEach((h,i)=>hi[String(h||'').trim().toLowerCase()]=i);
+    for(let i=boardTitleIdx+2;i<rows.length;i++){
+      const first=String(rows[i][0]||'').trim();
+      if(!first||/^Top Pins/i.test(first)||/^Top boards table/i.test(first))break;
+      if(!/^https?:\/\//i.test(first))continue;
+      boards.push({
+        board_name:boardNameFromPinterestUrl(first),
+        impressions:Number(rows[i][hi['impressions']]||0)||0,
+        engagements:Number(rows[i][hi['engagement'] ?? hi['engagements']]||0)||0,
+        pin_clicks:Number(rows[i][hi['pin clicks']]||0)||0,
+        outbound_clicks:Number(rows[i][hi['outbound clicks']]||0)||0,
+        saves:Number(rows[i][hi['saves']]||0)||0
+      });
+    }
+  }
+
+  const pinTitleIdx=rows.findIndex(r=>/^Top Pins/i.test(String(r[0]||'').trim()));
+  const pins=[];
+  let pinMetricKey='';
+  if(pinTitleIdx>=0){
+    const header=rows[pinTitleIdx+1]||[];
+    const hi={};
+    header.forEach((h,i)=>hi[String(h||'').trim().toLowerCase()]=i);
+    const lastHeader=String(header[header.length-1]||'').trim();
+    pinMetricKey=pinterestMetricKey(lastHeader);
+    for(let i=pinTitleIdx+2;i<rows.length;i++){
+      const first=String(rows[i][0]||'').trim();
+      if(!first||/^Top pins table/i.test(first))break;
+      if(!/^https?:\/\//i.test(first))continue;
+      const idMatch=first.match(/\/pin\/(\d+)/);
+      pins.push({
+        pin_url:first,
+        pin_id:idMatch?.[1]||'',
+        content_type:String(rows[i][hi['content type']]||''),
+        pin_source:String(rows[i][hi['source']]||''),
+        canonical_url:String(rows[i][hi['canonical']]||''),
+        metric_key:pinMetricKey,
+        metric_value:Number(rows[i][header.length-1]||0)||0
+      });
+    }
+  }
+
+  return {fileName:file.name,period_start,period_end,metricKey,metricLabel,daily,boards,pins,pinMetricKey};
+}
+
+async function pinterestRestRows(table,query=''){
+  const res=await cloudFetch(`/rest/v1/${table}?${query}`);
+  if(!res.ok)throw new Error(`No pude leer ${table}.`);
+  return await res.json();
+}
+
+async function pinterestUpsertRows(table,rows,conflict){
+  if(!rows.length)return;
+  const chunkSize=150;
+  for(let i=0;i<rows.length;i+=chunkSize){
+    const chunk=rows.slice(i,i+chunkSize);
+    const res=await cloudFetch(`/rest/v1/${table}?on_conflict=${encodeURIComponent(conflict)}`,{
+      method:'POST',
+      headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify(chunk)
+    });
+    if(!res.ok){
+      const body=await res.text();
+      console.error('Pinterest CSV upsert',table,body);
+      throw new Error(`No pude guardar ${table} en Supabase.`);
+    }
+  }
+}
+
+async function importPinterestCsvFiles(fileList){
+  const files=[...(fileList||[])];
+  if(!files.length)return;
+  pinterestCsvImportMessage='Leyendo archivos…';
+  render();
+  try{
+    const parsed=[];
+    for(const file of files)parsed.push(await parsePinterestCsvFile(file));
+
+    const periods=[...new Set(parsed.map(x=>`${x.period_start}|${x.period_end}`))];
+    if(periods.length!==1)throw new Error('Selecciona archivos del mismo periodo en una sola importación.');
+    const [period_start,period_end]=periods[0].split('|');
+
+    const session=await ensureSession(true);
+    const userId=session?.user?.id;
+    if(!userId)throw new Error('Tu sesión no está disponible.');
+
+    const selectedMetrics=[...new Set(parsed.map(x=>x.metricKey).filter(Boolean))];
+
+    const [existingDaily,existingPins]=await Promise.all([
+      pinterestRestRows('pinterest_daily_metrics',
+        `source=eq.csv&metric_date=gte.${period_start}&metric_date=lte.${period_end}&select=*`),
+      pinterestRestRows('pinterest_pin_metrics',
+        `source=eq.csv&period_start=eq.${period_start}&period_end=eq.${period_end}&select=*`)
+    ]);
+
+    const dailyMap=new Map(existingDaily.map(r=>[r.metric_date,{...r}]));
+    parsed.forEach(doc=>{
+      doc.daily.forEach(d=>{
+        const row=dailyMap.get(d.metric_date)||{
+          user_id:userId,metric_date:d.metric_date,source:'csv',
+          impressions:0,engagements:0,pin_clicks:0,outbound_clicks:0,saves:0
+        };
+        row[doc.metricKey]=d.value;
+        row.user_id=userId;row.source='csv';row.updated_at=new Date().toISOString();
+        delete row.id;
+        dailyMap.set(d.metric_date,row);
+      });
+    });
+
+    const pinMap=new Map(existingPins.map(r=>[r.pin_url,{...r}]));
+    const incomingUrls=new Set();
+    parsed.forEach(doc=>doc.pins.forEach(p=>incomingUrls.add(p.pin_url)));
+    existingPins.forEach(p=>incomingUrls.add(p.pin_url));
+
+    for(const url of incomingUrls){
+      const old=pinMap.get(url)||{};
+      pinMap.set(url,{
+        ...old,user_id:userId,pin_url:url,period_start,period_end,source:'csv',
+        impressions:+old.impressions||0,engagements:+old.engagements||0,
+        pin_clicks:+old.pin_clicks||0,outbound_clicks:+old.outbound_clicks||0,saves:+old.saves||0
+      });
+    }
+
+    // Si una métrica fue seleccionada, un Pin ausente de ese Top Pins equivale a 0 para esa métrica.
+    selectedMetrics.forEach(metric=>{
+      for(const row of pinMap.values())row[metric]=0;
+    });
+
+    parsed.forEach(doc=>{
+      doc.pins.forEach(p=>{
+        const row=pinMap.get(p.pin_url)||{
+          user_id:userId,pin_url:p.pin_url,period_start,period_end,source:'csv',
+          impressions:0,engagements:0,pin_clicks:0,outbound_clicks:0,saves:0
+        };
+        row.pin_id=p.pin_id||row.pin_id||'';
+        row.content_type=p.content_type||row.content_type||'';
+        row.pin_source=p.pin_source||row.pin_source||'';
+        row.canonical_url=p.canonical_url||row.canonical_url||'';
+        if(p.metric_key)row[p.metric_key]=p.metric_value;
+        row.updated_at=new Date().toISOString();
+        delete row.id;
+        pinMap.set(p.pin_url,row);
+      });
+    });
+
+    // Boards ya traen todas las métricas en cualquier exportación.
+    const boardDoc=[...parsed].reverse().find(x=>x.boards.length)||parsed[0];
+    const boardRows=(boardDoc.boards||[]).map(b=>({
+      user_id:userId,board_name:b.board_name,period_start,period_end,source:'csv',
+      impressions:b.impressions,engagements:b.engagements,pin_clicks:b.pin_clicks,
+      outbound_clicks:b.outbound_clicks,saves:b.saves,updated_at:new Date().toISOString()
+    }));
+
+    await pinterestUpsertRows('pinterest_daily_metrics',[...dailyMap.values()],
+      'user_id,metric_date,source');
+    await pinterestUpsertRows('pinterest_pin_metrics',[...pinMap.values()].map(r=>{const x={...r};delete x.id;return x}),
+      'user_id,pin_url,period_start,period_end,source');
+    await pinterestUpsertRows('pinterest_board_metrics',boardRows,
+      'user_id,board_name,period_start,period_end,source');
+
+    await pinterestUpsertRows('pinterest_analytics_imports',[{
+      user_id:userId,period_start,period_end,source:'csv',files_count:files.length,
+      imported_at:new Date().toISOString(),updated_at:new Date().toISOString()
+    }],'user_id,period_start,period_end,source');
+
+    const found=selectedMetrics.map(pinterestMetricPretty).join(' · ');
+    pinterestCsvImportMessage=`✓ ${files.length} archivos importados · ${found}`;
+    await loadPinterestCsvAnalytics(false);
+    render();
+    toast('Pinterest Analytics importado ✓');
+  }catch(err){
+    console.error('Pinterest CSV import',err);
+    pinterestCsvImportMessage='Error: '+(err?.message||String(err));
+    render();
+    toast('No pude importar los CSV de Pinterest');
+  }
+}
+
+async function loadPinterestCsvAnalytics(renderAfter=false){
+  try{
+    const imports=await pinterestRestRows('pinterest_analytics_imports',
+      'source=eq.csv&select=*&order=period_end.desc,imported_at.desc&limit=1');
+    if(!imports.length){
+      pinterestCsvCache={loaded:true,importInfo:null,daily:[],pins:[],boards:[]};
+      if(renderAfter)render();
+      return pinterestCsvCache;
+    }
+    const info=imports[0];
+    const qs=`source=eq.csv&period_start=eq.${info.period_start}&period_end=eq.${info.period_end}`;
+    const [daily,pins,boards]=await Promise.all([
+      pinterestRestRows('pinterest_daily_metrics',
+        `source=eq.csv&metric_date=gte.${info.period_start}&metric_date=lte.${info.period_end}&select=*&order=metric_date.asc`),
+      pinterestRestRows('pinterest_pin_metrics',`${qs}&select=*&order=impressions.desc&limit=500`),
+      pinterestRestRows('pinterest_board_metrics',`${qs}&select=*&order=impressions.desc&limit=100`)
+    ]);
+    pinterestCsvCache={loaded:true,importInfo:info,daily,pins,boards};
+  }catch(err){
+    console.warn('Pinterest CSV load',err);
+    pinterestCsvCache={loaded:true,importInfo:null,daily:[],pins:[],boards:[]};
+  }
+  if(renderAfter)render();
+  return pinterestCsvCache;
+}
+
+function pinterestCsvSummary(){
+  const rows=pinterestCsvCache.daily||[];
+  return {
+    impressions:rows.reduce((s,r)=>s+(+r.impressions||0),0),
+    engagements:rows.reduce((s,r)=>s+(+r.engagements||0),0),
+    pinClicks:rows.reduce((s,r)=>s+(+r.pin_clicks||0),0),
+    outboundClicks:rows.reduce((s,r)=>s+(+r.outbound_clicks||0),0),
+    saves:rows.reduce((s,r)=>s+(+r.saves||0),0)
+  };
+}
+
+function getRemoteMetrics(){
+  let base={};
+  try{base=JSON.parse(localStorage.getItem(REMOTE_METRICS_KEY)||'{}')}catch{}
+  if(pinterestCsvCache.importInfo){
+    const s=pinterestCsvSummary();
+    base.pinterest={
+      ...s,
+      source:'csv',
+      periodStart:pinterestCsvCache.importInfo.period_start,
+      periodEnd:pinterestCsvCache.importInfo.period_end,
+      lastImport:pinterestCsvCache.importInfo.imported_at,
+      topPins:pinterestCsvCache.pins.map(p=>({
+        pin_id:p.pin_id,pin_url:p.pin_url,title:p.pin_id?`Pin ${p.pin_id}`:'Pin de Pinterest',
+        impressions:+p.impressions||0,engagements:+p.engagements||0,
+        pin_clicks:+p.pin_clicks||0,outbound_clicks:+p.outbound_clicks||0,saves:+p.saves||0,
+        content_type:p.content_type||'',source:p.pin_source||'',canonical:p.canonical_url||'',
+        period_start:p.period_start,period_end:p.period_end,created_at:p.period_end
+      }))
+    };
+    base.connections={...(base.connections||{}),pinterest:'connected'};
+  }
+  return base;
+}
+
+async function refresh(){
+  const [content,products,ideas]=await Promise.all([getAll('content'),getAll('products'),getAll('ideas')]);
+  state.content=content.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+  state.products=products.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+  state.ideas=ideas.sort((a,b)=>String(b.createdAt||b._cloudCreatedAt||'').localeCompare(String(a.createdAt||a._cloudCreatedAt||'')));
+  await loadPinterestCsvAnalytics(false);
+  render();
+}
+
+function pinterestCsvImportPanel(){
+  const info=pinterestCsvCache.importInfo;
+  const summary=info?pinterestCsvSummary():null;
+  const imported=info?.imported_at?new Date(info.imported_at).toLocaleString('es-EC'):'—';
+  return `<div class="pinterest-import-card">
+    <div class="pinterest-import-head">
+      <div>
+        <span class="csv-source-pill">📥 Pinterest Analytics CSV</span>
+        <h3>${info?'Datos oficiales importados':'Importar Analytics oficial de Pinterest'}</h3>
+        <p>Selecciona juntos los CSV del mismo periodo. El dashboard detecta automáticamente Impresiones, Engagements, Clics en el Pin, Clics salientes y Pines guardados, elimina duplicados por periodo y guarda el histórico en Supabase.</p>
+      </div>
+      <div class="pinterest-import-actions">
+        <label class="btn primary">📥 Importar CSV
+          <input class="hidden" type="file" accept=".csv,text/csv" multiple onchange="importPinterestCsvFiles(this.files);this.value=''">
+        </label>
+      </div>
+    </div>
+    <div class="csv-import-meta">
+      <div><small>Periodo</small><b>${info?`${esc(info.period_start)} → ${esc(info.period_end)}`:'—'}</b></div>
+      <div><small>Última importación</small><b>${esc(imported)}</b></div>
+      <div><small>Fuente</small><b>${info?'Pinterest Analytics CSV':'Sin datos'}</b></div>
+      <div><small>Impresiones</small><b>${summary?summary.impressions.toLocaleString():'—'}</b></div>
+    </div>
+    ${pinterestCsvImportMessage?`<div class="csv-import-status ${pinterestCsvImportMessage.startsWith('Error')?'err':'ok'}">${esc(pinterestCsvImportMessage)}</div>`:''}
+  </div>`;
+}
+
+function pinterestPinRows(){
+  if(pinterestCsvCache.importInfo){
+    return pinterestCsvCache.pins.map(p=>({
+      pin_id:p.pin_id||'',pin_url:p.pin_url||'',title:p.pin_id?`Pin ${p.pin_id}`:'Pin de Pinterest',
+      description:'',image_url:'',format:p.content_type||'',
+      created_at:p.period_end,period_start:p.period_start,period_end:p.period_end,
+      impressions:+p.impressions||0,saves:+p.saves||0,pin_clicks:+p.pin_clicks||0,
+      outbound_clicks:+p.outbound_clicks||0,engagements:+p.engagements||0,_csv:true
+    }));
+  }
+  const r=getRemoteMetrics(),p=r.pinterest||{};
+  let pins=Array.isArray(p.topPins)?p.topPins:(Array.isArray(p.pins)?p.pins:[]);
+  if(!pins.length){
+    pins=state.content.filter(c=>c.platform==='Pinterest').map(c=>({
+      pin_id:String(c.id),title:c.pinterestTitle||c.copy||'Pin',description:c.pinterestDescription||'',
+      image_url:c.image||'',format:c.type||'Sin formato',created_at:c.date,
+      impressions:+c.impressions||0,saves:+c.saves||0,pin_clicks:+c.clicks||0,
+      outbound_clicks:+c.amazonClicks||0,engagements:interactions(c)
+    }));
+  }
+  return pins;
+}
+
+function pinterestMetricValue(p,m){
+  if(m==='engagement'){
+    const imp=+p.impressions||0,eng=+p.engagements||0;
+    return imp?eng/imp*100:0;
+  }
+  return +(p[m]??0)||0;
+}
+
+function pinterestTopPins(){
+  let pins=pinterestPinRows();
+  if(!pins.length)return `<div class="card p20"><p class="muted">Importa tus CSV de Pinterest Analytics para ver el ranking de Pins.</p></div>`;
+  pins=pins.filter(p=>withinPeriod(p.created_at||p.period_end,pinterestTopFilters.period));
+  pins.sort((a,b)=>{
+    const av=pinterestMetricValue(a,pinterestTopFilters.metric),bv=pinterestMetricValue(b,pinterestTopFilters.metric);
+    return pinterestTopFilters.order==='asc'?av-bv:bv-av;
+  });
+  const labels={
+    impressions:'Impresiones',engagements:'Engagements',saves:'Guardados',
+    pin_clicks:'Pin clicks',outbound_clicks:'Outbound clicks',engagement:'Tasa engagement'
+  };
+  return `<div class="card p20" style="margin-top:18px">
+    <div class="section-head"><div><h2 style="font-size:18px">Top Pins</h2><p>Ranking oficial importado desde Pinterest Analytics. Las métricas de Pins se unen por URL.</p></div></div>
+    <div class="result-toolbar">
+      <div class="filter-group"><label>Ordenar por</label><select class="input compact-select" onchange="setPinterestTopFilter('metric',this.value)">
+        ${Object.entries(labels).map(([v,l])=>`<option value="${v}" ${pinterestTopFilters.metric===v?'selected':''}>${l}</option>`).join('')}
+      </select></div>
+      <div class="filter-group"><label>Orden</label><select class="input compact-select" onchange="setPinterestTopFilter('order',this.value)">
+        <option value="desc" ${pinterestTopFilters.order==='desc'?'selected':''}>Mayor a menor</option>
+        <option value="asc" ${pinterestTopFilters.order==='asc'?'selected':''}>Menor a mayor</option>
+      </select></div>
+      <div class="filter-summary">${pins.length} Pins</div>
+    </div>
+    <div class="table-wrap"><table class="table" style="min-width:900px"><thead><tr><th>Pin</th><th>Impresiones</th><th>Engagements</th><th>Guardados</th><th>Pin clicks</th><th>Outbound</th><th>Eng.</th></tr></thead>
+    <tbody>${pins.slice(0,20).map(p=>{
+      const imp=+p.impressions||0,eng=+p.engagements||0;
+      const href=p.pin_url||'#';
+      return `<tr>
+        <td><div><a class="pinterest-table-link" href="${esc(href)}" target="_blank" rel="noopener"><b>${esc(p.pin_id?`Pin ${p.pin_id}`:(p.title||'Pin'))}</b></a>
+        ${p.pin_url?`<small class="pin-url-note">Abrir en Pinterest ↗</small>`:''}${p._csv?`<span class="pin-csv-badge">CSV oficial</span>`:''}</div></td>
+        <td><b>${imp.toLocaleString()}</b></td><td>${eng.toLocaleString()}</td><td>${(+p.saves||0).toLocaleString()}</td>
+        <td>${(+p.pin_clicks||0).toLocaleString()}</td><td>${(+p.outbound_clicks||0).toLocaleString()}</td>
+        <td>${pc(imp?eng/imp*100:0)}</td>
+      </tr>`;
+    }).join('')}</tbody></table></div>
+  </div>`;
+}
+
+function setPinterestCsvTrendMetric(v){pinterestCsvTrendMetric=v;render()}
+
+function pinterestDailyTrend(){
+  const rows=pinterestCsvCache.daily||[];
+  if(!rows.length)return '';
+  const key=pinterestCsvTrendMetric;
+  const max=Math.max(1,...rows.map(r=>+r[key]||0));
+  const labels={impressions:'Impresiones',engagements:'Engagements',pin_clicks:'Pin clicks',outbound_clicks:'Outbound clicks',saves:'Guardados'};
+  return `<div class="card p20 pinterest-trend-card">
+    <div class="section-head">
+      <div><h2 style="font-size:18px">Evolución diaria</h2><p>${esc(labels[key])} por día dentro del periodo importado.</p></div>
+      <select class="input compact-select" style="max-width:190px" onchange="setPinterestCsvTrendMetric(this.value)">
+        ${Object.entries(labels).map(([v,l])=>`<option value="${v}" ${key===v?'selected':''}>${l}</option>`).join('')}
+      </select>
+    </div>
+    <div class="pinterest-trend-bars">${rows.map((r,i)=>{
+      const val=+r[key]||0;
+      const h=Math.max(2,(val/max)*100);
+      const show=i===0||i===rows.length-1||i%7===0;
+      return `<div class="pinterest-trend-day" title="${esc(r.metric_date)} · ${val.toLocaleString()}">
+        <div class="pinterest-trend-bar" style="height:${h}%"></div>
+        ${show?`<span>${esc(r.metric_date.slice(8,10))}</span>`:''}
+      </div>`;
+    }).join('')}</div>
+  </div>`;
+}
+
+function pinterestBoardsCard(){
+  const boards=pinterestCsvCache.boards||[];
+  if(!boards.length)return '';
+  return `<div class="card p20 pinterest-board-card">
+    <div class="section-head"><div><h2 style="font-size:18px">Top Boards</h2><p>Métricas completas de los tableros incluidas por Pinterest en el CSV.</p></div></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>Tablero</th><th>Impresiones</th><th>Engagements</th><th>Pin clicks</th><th>Outbound</th><th>Guardados</th></tr></thead>
+    <tbody>${boards.map(b=>`<tr>
+      <td><b>${esc(b.board_name)}</b></td><td>${(+b.impressions||0).toLocaleString()}</td>
+      <td>${(+b.engagements||0).toLocaleString()}</td><td>${(+b.pin_clicks||0).toLocaleString()}</td>
+      <td>${(+b.outbound_clicks||0).toLocaleString()}</td><td>${(+b.saves||0).toLocaleString()}</td>
+    </tr>`).join('')}</tbody></table></div>
+  </div>`;
+}
+
+function pinterestPendingSummary(){
+  const r=getRemoteMetrics(),p=r.pinterest||{},has=Object.keys(p).length>0;
+  const imp=+p.impressions||0,saves=+p.saves||0,pinClicks=+(p.pinClicks??p.pin_clicks)||0,
+        outbound=+(p.outboundClicks??p.outbound_clicks)||0,eng=+p.engagements||0,rate=imp?eng/imp*100:0;
+  return `${pinterestCsvImportPanel()}<div class="card p20" style="margin-bottom:18px">
+    <div class="connection-row">
+      <div><div class="category">📌 Pinterest Analytics</div><h3 style="margin:5px 0 0">${has?'Datos oficiales por CSV':'Sin datos importados'}</h3></div>
+      ${connectionBadge(has?'connected':'pending')}
+    </div>
+    <div class="platform-kpis">
+      <div class="platform-kpi"><small>Impresiones</small><b>${has?imp.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Engagements</small><b>${has?eng.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Guardados</small><b>${has?saves.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Pin clicks</small><b>${has?pinClicks.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Outbound clicks</small><b>${has?outbound.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Engagement</small><b>${has?pc(rate):'—'}</b></div>
+    </div>
+    <div class="divider"></div>
+    <small class="muted">${has?'Fuente activa: CSV oficial de Pinterest Analytics → Supabase. La API queda como mejora futura opcional.':'Importa los CSV oficiales de Pinterest Analytics. Ya no necesitas esperar Trial Access para llenar estas métricas.'}</small>
+  </div>`;
+}
+
+function pinterestAnalyticsCard(){
+  const r=getRemoteMetrics(),p=r.pinterest||{},has=Object.keys(p).length>0;
+  const imp=+p.impressions||0,saves=+p.saves||0,pclic=+(p.pinClicks??p.pin_clicks)||0,
+        out=+(p.outboundClicks??p.outbound_clicks)||0,eng=+p.engagements||0,rate=imp?eng/imp*100:0;
+  return `${pinterestCsvImportPanel()}
+  <div class="card integration-card">
+    <div class="connection-row">
+      <div class="analytics-logo-note"><img src="${platformLogo('pinterest','E60023')}" alt="Pinterest"><div><div class="category">PINTEREST ANALYTICS</div><h3 style="margin:5px 0 0">Rendimiento de Pinterest</h3></div></div>
+      ${connectionBadge(has?'connected':'pending')}
+    </div>
+    <div class="platform-kpis">
+      <div class="platform-kpi"><small>Impresiones</small><b>${has?imp.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Engagement</small><b>${has?pc(rate):'—'}</b></div>
+      <div class="platform-kpi"><small>Guardados</small><b>${has?saves.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Pin clicks</small><b>${has?pclic.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Outbound clicks</small><b>${has?out.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Engagements</small><b>${has?eng.toLocaleString():'—'}</b></div>
+    </div>
+    <div class="divider"></div>
+    <small class="muted">${has?'Fuente: Pinterest Analytics CSV oficial → Supabase.':'Importa los CSV oficiales para comenzar. Trial Access ya no bloquea tus analytics.'}</small>
+  </div>
+  ${has?pinterestDailyTrend()+pinterestBoardsCard()+pinterestTopPins():''}`;
+}
+
+function homePinterestSummary(){
+  const r=getRemoteMetrics(),p=r.pinterest||{},has=Object.keys(p).length>0;
+  const imp=+p.impressions||0,saves=+p.saves||0,pinClicks=+(p.pinClicks??p.pin_clicks)||0,
+        outbound=+(p.outboundClicks??p.outbound_clicks)||0,eng=+p.engagements||0,rate=imp?eng/imp*100:0;
+  return `<div class="card p20 home-pinterest-summary">
+    <div class="connection-row"><div><div class="category">📌 Pinterest</div><h3 style="margin:5px 0 0">Métricas</h3></div>${connectionBadge(has?'connected':'pending')}</div>
+    <div class="platform-kpis">
+      <div class="platform-kpi"><small>Impresiones</small><b>${has?imp.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Guardados</small><b>${has?saves.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Pin clicks</small><b>${has?pinClicks.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Outbound clicks</small><b>${has?outbound.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Engagement</small><b>${has?pc(rate):'—'}</b></div>
+      <div class="platform-kpi"><small>Engagements</small><b>${has?eng.toLocaleString():'—'}</b></div>
+    </div>
+    <div class="divider"></div>
+    <small class="muted">${has?'Fuente: Pinterest Analytics CSV oficial → Supabase.':'Sin CSV importado todavía.'}</small>
+  </div>`;
 }
 
 
