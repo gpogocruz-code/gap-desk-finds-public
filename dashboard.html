@@ -4471,7 +4471,7 @@ function shell(body){
   const subtitle=state.section==='home'?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.14.1</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -4766,7 +4766,7 @@ function shell(body){
   const subtitle=(state.section==='home'||state.section==='calendar')?'':'<p>Organiza y analiza cada plataforma por separado.</p>';
   return `<div class="overlay ${state.sidebar?'open':''}" onclick="toggleSidebar(false)"></div>
   <aside class="sidebar ${state.sidebar?'open':''}">
-    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.13.0</small></div>
+    <div class="brand"><b>✨ GAP Desk Finds</b><small>Content Dashboard · V1.14.1</small></div>
     <nav class="nav">${navHTML()}</nav>
     <div class="save-note"><b>🔒 Nube privada</b>Contenido, productos e ideas se guardan en Supabase con Auth + RLS.</div>
   </aside>
@@ -5347,7 +5347,288 @@ async function saveContent(e,id){
 }
 
 
-// GAP Desk Finds V1.14.0 · importación automática de Threads espontáneos
+
+
+// ============================================================
+// GAP DESK FINDS · V1.14.1
+// Recuperación de importación manual de Pinterest mientras Trial Access sigue pendiente
+// ============================================================
+const PINTEREST_MANUAL_KEY='gap-desk-finds-pinterest-manual-v141';
+let pinterestCloudRecoveryTried=false;
+
+function pinterestManualStore(){
+  try{return JSON.parse(localStorage.getItem(PINTEREST_MANUAL_KEY)||'{}')||{}}catch{return {}}
+}
+function savePinterestManualStore(value){
+  localStorage.setItem(PINTEREST_MANUAL_KEY,JSON.stringify(value||{}));
+}
+function pinterestManualCurrent(){
+  const s=pinterestManualStore();
+  return s?.current&&typeof s.current==='object'?s.current:null;
+}
+function pinterestManualBadge(){
+  return `<span class="connection-badge off"><span class="dot"></span>IMPORTADO</span>`;
+}
+function pinterestMetricObject(){
+  const remote=getRemoteMetrics()?.pinterest||{};
+  if(remote&&Object.keys(remote).length){return {data:remote,source:'api'}}
+  const manual=pinterestManualCurrent();
+  if(manual)return {data:manual,source:manual.cloudRecovered?'cloud-manual':'manual'};
+  return {data:{},source:'pending'};
+}
+function pinterestNumFrom(obj,names){
+  for(const name of names){
+    if(obj&&obj[name]!==undefined&&obj[name]!==null&&obj[name]!==''){
+      const n=Number(obj[name]);
+      if(Number.isFinite(n))return n;
+    }
+  }
+  return 0;
+}
+function pinterestDateFrom(obj){
+  const names=['metric_date','date','day','period_date','captured_date','created_at','captured_at'];
+  for(const name of names){
+    const v=obj?.[name];
+    if(v){const d=new Date(v);if(!isNaN(d))return d.toISOString().slice(0,10)}
+  }
+  return '';
+}
+function aggregatePinterestRows(rows){
+  const totals={impressions:0,engagements:0,saves:0,pinClicks:0,outboundClicks:0};
+  const dates=[];
+  for(const row of rows||[]){
+    totals.impressions+=pinterestNumFrom(row,['impressions']);
+    totals.engagements+=pinterestNumFrom(row,['engagements','engagement']);
+    totals.saves+=pinterestNumFrom(row,['saves','save_count']);
+    totals.pinClicks+=pinterestNumFrom(row,['pin_clicks','pinClicks','clicks']);
+    totals.outboundClicks+=pinterestNumFrom(row,['outbound_clicks','outboundClicks','amazon_clicks']);
+    const d=pinterestDateFrom(row);if(d)dates.push(d);
+  }
+  dates.sort();
+  return {...totals,periodStart:dates[0]||'',periodEnd:dates.at(-1)||'',rowsCount:(rows||[]).length};
+}
+async function recoverPinterestManualFromCloud(){
+  if(pinterestCloudRecoveryTried)return;
+  pinterestCloudRecoveryTried=true;
+  if(pinterestManualCurrent())return;
+  try{
+    const res=await cloudFetch('/rest/v1/pinterest_daily_metrics?select=*&limit=5000');
+    if(!res.ok)return;
+    const rows=await res.json().catch(()=>[]);
+    if(!Array.isArray(rows)||!rows.length)return;
+    const agg=aggregatePinterestRows(rows);
+    if(!(agg.impressions||agg.engagements||agg.saves||agg.pinClicks||agg.outboundClicks))return;
+    let meta=null;
+    try{
+      const mr=await cloudFetch('/rest/v1/pinterest_analytics_imports?select=*&order=imported_at.desc&limit=1');
+      if(mr.ok){const a=await mr.json().catch(()=>[]);meta=Array.isArray(a)?a[0]:null}
+    }catch{}
+    const current={...agg,source:'Supabase · importación manual anterior',cloudRecovered:true,filesCount:Number(meta?.files_count||0),importedAt:meta?.imported_at||meta?.updated_at||new Date().toISOString(),periodStart:meta?.period_start||agg.periodStart,periodEnd:meta?.period_end||agg.periodEnd};
+    savePinterestManualStore({current,history:[current]});
+    render();
+    toast('Pinterest: datos importados anteriores recuperados ✓');
+  }catch(e){console.warn('Pinterest manual recovery',e)}
+}
+function normalizePinterestHeader(s){
+  return String(s||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ');
+}
+function pinterestMetricAliases(){
+  return {
+    date:['date','fecha','day','dia','metric date','fecha metrica','fecha de metrica'],
+    impressions:['impressions','impresiones','impression'],
+    engagements:['engagements','engagement','interacciones','interaccion'],
+    saves:['saves','guardados','guardado','save'],
+    pinClicks:['pin clicks','pin click','pin_clicks','clics en el pin','clics del pin','clicks on pin','clicks'],
+    outboundClicks:['outbound clicks','outbound click','outbound_clicks','clics salientes','clics de salida','clicks salientes']
+  };
+}
+function parsePinterestNumber(value){
+  const raw=String(value??'').trim();
+  if(!raw)return 0;
+  const cleaned=raw.replace(/[^0-9-]/g,'');
+  const n=Number(cleaned||0);
+  return Number.isFinite(n)?n:0;
+}
+function splitDelimitedText(text,delimiter){
+  const rows=[];let row=[],cell='',quoted=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(ch==='"'){
+      if(quoted&&text[i+1]==='"'){cell+='"';i++;}
+      else quoted=!quoted;
+    }else if(ch===delimiter&&!quoted){row.push(cell);cell='';}
+    else if((ch==='\n'||ch==='\r')&&!quoted){
+      if(ch==='\r'&&text[i+1]==='\n')i++;
+      row.push(cell);cell='';
+      if(row.some(v=>String(v).trim()!==''))rows.push(row);
+      row=[];
+    }else cell+=ch;
+  }
+  row.push(cell);if(row.some(v=>String(v).trim()!==''))rows.push(row);
+  return rows;
+}
+function detectPinterestDelimiter(text){
+  const line=String(text||'').split(/\r?\n/,1)[0]||'';
+  const choices=[',',';','\t'];
+  let best=',',score=-1;
+  for(const d of choices){const c=(line.match(new RegExp(d==='\t'?'\\t':`\\${d}`,'g'))||[]).length;if(c>score){score=c;best=d}}
+  return best;
+}
+function parsePinterestExport(text){
+  const delimiter=detectPinterestDelimiter(text);
+  const rows=splitDelimitedText(String(text||'').replace(/^\uFEFF/,''),delimiter);
+  if(rows.length<2)throw new Error('El archivo no contiene filas de datos.');
+  const headers=rows[0].map(normalizePinterestHeader);
+  const aliases=pinterestMetricAliases();
+  const index={};
+  for(const [key,names] of Object.entries(aliases)){
+    index[key]=headers.findIndex(h=>names.includes(h));
+  }
+  const metricKeys=['impressions','engagements','saves','pinClicks','outboundClicks'];
+  if(!metricKeys.some(k=>index[k]>=0)){
+    throw new Error('No encontré columnas de métricas de Pinterest en uno de los archivos.');
+  }
+  const parsed=[];
+  for(const cols of rows.slice(1)){
+    const item={};
+    for(const k of metricKeys)item[k]=index[k]>=0?parsePinterestNumber(cols[index[k]]):0;
+    if(index.date>=0)item.date=String(cols[index.date]||'').trim();
+    if(metricKeys.some(k=>item[k]))parsed.push(item);
+  }
+  return parsed;
+}
+function normalizePinterestDate(value){
+  if(!value)return '';
+  const raw=String(value).trim();
+  const direct=new Date(raw);
+  if(!isNaN(direct))return direct.toISOString().slice(0,10);
+  const m=raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(m){const d=new Date(Number(m[3]),Number(m[2])-1,Number(m[1]));if(!isNaN(d))return `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`}
+  return '';
+}
+function openPinterestImport(){
+  const current=pinterestManualCurrent();
+  modal('Importar datos de Pinterest',`<form class="modal-body" onsubmit="importPinterestData(event)">
+    <div class="notice" style="background:#fff8fb;border-color:#f3dce5;color:#7c4b5e"><b>Importación manual temporal.</b> Mientras Pinterest mantiene Trial Access en revisión, puedes cargar exportaciones CSV/TSV para llenar las métricas del dashboard. Estos datos siguen separados de Threads.</div>
+    <div class="subbox">
+      <b>Archivos de Pinterest</b>
+      <p class="muted" style="margin:6px 0 12px">Puedes seleccionar uno o varios archivos. Reconozco columnas como Impressions, Engagements, Saves, Pin clicks y Outbound clicks, también en español.</p>
+      <input id="pin_import_files" class="input" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain" multiple required onchange="previewPinterestImportFiles(this)">
+      <div id="pin_import_file_note" class="muted" style="font-size:12px;margin-top:8px">Ningún archivo seleccionado.</div>
+    </div>
+    <div class="grid field-grid-2 gap12">
+      ${field('Inicio del periodo (opcional)',`<input id="pin_period_start" type="date" class="input" value="${val(current?.periodStart||'')}">`)}
+      ${field('Fin del periodo (opcional)',`<input id="pin_period_end" type="date" class="input" value="${val(current?.periodEnd||'')}">`)}
+    </div>
+    ${current?`<div class="api-pending-box"><b>Datos manuales actuales</b><span>${Number(current.impressions||0).toLocaleString()} impresiones · ${Number(current.saves||0).toLocaleString()} guardados · ${Number(current.pinClicks||0).toLocaleString()} Pin clicks</span><small>La nueva importación reemplazará el resumen manual activo; se conserva un pequeño historial local.</small></div>`:''}
+    <div class="modal-actions"><button type="button" class="btn secondary" onclick="closeModal()">Cancelar</button><button id="pin_import_btn" class="btn primary">⬆️ Importar datos</button></div>
+  </form>`);
+}
+function previewPinterestImportFiles(input){
+  const files=[...(input?.files||[])];
+  const el=document.getElementById('pin_import_file_note');
+  if(el)el.textContent=files.length?`${files.length} archivo${files.length===1?'':'s'} seleccionado${files.length===1?'':'s'}: ${files.map(f=>f.name).join(', ')}`:'Ningún archivo seleccionado.';
+}
+async function importPinterestData(e){
+  e.preventDefault();
+  const input=document.getElementById('pin_import_files');
+  const files=[...(input?.files||[])];
+  if(!files.length){toast('Selecciona al menos un archivo de Pinterest');return}
+  const btn=document.getElementById('pin_import_btn');if(btn){btn.disabled=true;btn.textContent='Importando…'}
+  try{
+    const totals={impressions:0,engagements:0,saves:0,pinClicks:0,outboundClicks:0};
+    const daily=new Map();
+    let parsedRows=0;
+    for(const file of files){
+      const text=await file.text();
+      const rows=parsePinterestExport(text);
+      parsedRows+=rows.length;
+      for(const r of rows){
+        for(const k of Object.keys(totals))totals[k]+=Number(r[k]||0);
+        const d=normalizePinterestDate(r.date);
+        if(d){
+          if(!daily.has(d))daily.set(d,{date:d,impressions:0,engagements:0,saves:0,pinClicks:0,outboundClicks:0});
+          const x=daily.get(d);for(const k of Object.keys(totals))x[k]+=Number(r[k]||0);
+        }
+      }
+    }
+    if(!Object.values(totals).some(Number))throw new Error('Los archivos no contienen métricas numéricas reconocibles.');
+    const inferredDates=[...daily.keys()].sort();
+    const current={
+      ...totals,
+      periodStart:document.getElementById('pin_period_start')?.value||inferredDates[0]||'',
+      periodEnd:document.getElementById('pin_period_end')?.value||inferredDates.at(-1)||'',
+      importedAt:new Date().toISOString(),
+      filesCount:files.length,
+      rowsCount:parsedRows,
+      source:'Importación manual de Pinterest',
+      filenames:files.map(f=>f.name),
+      daily:[...daily.values()]
+    };
+    const store=pinterestManualStore();
+    const history=[...(Array.isArray(store.history)?store.history:[])];
+    history.unshift(current);
+    savePinterestManualStore({current,history:history.slice(0,20)});
+    closeModal();render();
+    toast(`Pinterest importado ✓ · ${files.length} archivo${files.length===1?'':'s'}`);
+  }catch(err){
+    console.error('Pinterest import',err);
+    alert('No pude importar esos datos de Pinterest. '+(err?.message||String(err)));
+    if(btn){btn.disabled=false;btn.textContent='⬆️ Importar datos'}
+  }
+}
+function clearPinterestManualImport(){
+  if(!confirm('¿Quitar el resumen manual importado de Pinterest de este navegador?'))return;
+  const store=pinterestManualStore();
+  delete store.current;
+  savePinterestManualStore(store);
+  render();toast('Importación manual de Pinterest quitada');
+}
+
+function pinterestPendingSummary(){
+  const source=pinterestMetricObject(),p=source.data||{},has=source.source!=='pending';
+  if(!pinterestCloudRecoveryTried&&authSession)setTimeout(recoverPinterestManualFromCloud,0);
+  const imp=+p.impressions||0,saves=+p.saves||0,pclic=+(p.pinClicks??p.pin_clicks)||0,out=+(p.outboundClicks??p.outbound_clicks)||0,eng=+p.engagements||0,rate=imp?eng/imp*100:0;
+  const manual=source.source!=='api'&&has;
+  const period=[p.periodStart,p.periodEnd].filter(Boolean).join(' → ');
+  return `<div class="card p20" style="margin-bottom:18px">
+    <div class="connection-row"><div><div class="category">📌 PINTEREST ANALYTICS</div><h3 style="margin:5px 0 0">${source.source==='api'?'Pinterest conectado':manual?'Datos manuales importados':'Acceso Trial en revisión'}</h3></div>${source.source==='api'?connectionBadge('connected'):manual?pinterestManualBadge():connectionBadge('pending')}</div>
+    <p class="muted">${source.source==='api'?'Datos oficiales recibidos desde Pinterest API.':manual?'Mientras Trial Access sigue pendiente, el dashboard usa tu exportación manual de Pinterest.':'La aplicación GAP Desk Finds Analytics ya fue enviada a Pinterest. Mientras esperamos, puedes importar tus datos manualmente.'}</p>
+    <div class="platform-kpis">
+      <div class="platform-kpi"><small>Impresiones</small><b>${has?imp.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Guardados</small><b>${has?saves.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Pin clicks</small><b>${has?pclic.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Outbound clicks</small><b>${has?out.toLocaleString():'—'}</b></div>
+      <div class="platform-kpi"><small>Engagement</small><b>${has?pc(rate):'—'}</b></div>
+      <div class="platform-kpi"><small>Engagements</small><b>${has?eng.toLocaleString():'—'}</b></div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <small class="muted">${source.source==='api'?'Fuente: Pinterest API → Supabase.':manual?`Fuente: importación manual${period?' · '+esc(period):''}${p.importedAt?' · '+new Date(p.importedAt).toLocaleString('es-EC'):''}`:'Pinterest API pendiente. La importación manual no se mezcla con Threads.'}</small>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ${manual?'secondary':'primary'}" onclick="openPinterestImport()">⬆️ ${manual?'Reemplazar datos':'Importar datos'}</button>${manual?`<button class="btn secondary" onclick="clearPinterestManualImport()">Quitar importación</button>`:''}</div>
+    </div>
+  </div>`;
+}
+
+function pinterestAnalyticsCard(){
+  const source=pinterestMetricObject(),p=source.data||{},has=source.source!=='pending';
+  const imp=+p.impressions||0,saves=+p.saves||0,pclic=+(p.pinClicks??p.pin_clicks)||0,out=+(p.outboundClicks??p.outbound_clicks)||0,eng=+p.engagements||0,rate=imp?eng/imp*100:0;
+  const sourceText=source.source==='api'?'Fuente: Pinterest API → Supabase → GAP Desk Finds.':has?'Fuente: importación manual de Pinterest mientras Trial Access está pendiente.':'Trial Access pendiente. Puedes importar datos manuales desde la sección Pinterest mientras llega la API.';
+  return `<div class="card integration-card">
+    <div class="connection-row"><div class="analytics-logo-note"><img src="${platformLogo('pinterest','E60023')}" alt="Pinterest"><div><div class="category">PINTEREST ANALYTICS</div><h3 style="margin:5px 0 0">Rendimiento de Pinterest</h3></div></div>${source.source==='api'?connectionBadge('connected'):has?pinterestManualBadge():connectionBadge('pending')}</div>
+    <div class="platform-kpis"><div class="platform-kpi"><small>Impresiones</small><b>${has?imp.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Engagement</small><b>${has?pc(rate):'—'}</b></div><div class="platform-kpi"><small>Guardados</small><b>${has?saves.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Pin clicks</small><b>${has?pclic.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Outbound clicks</small><b>${has?out.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Engagements</small><b>${has?eng.toLocaleString():'—'}</b></div></div>
+    <div class="divider"></div><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><small class="muted">${sourceText}</small>${source.source!=='api'?`<button class="btn secondary" onclick="go('pinterest')">${has?'Gestionar importación':'Importar datos'}</button>`:''}</div>
+  </div>${source.source==='api'&&has?pinterestTopPins():''}`;
+}
+
+function homePinterestSummary(){
+  const source=pinterestMetricObject(),p=source.data||{},has=source.source!=='pending';
+  const imp=+p.impressions||0,saves=+p.saves||0,pinClicks=+(p.pinClicks??p.pin_clicks)||0,outbound=+(p.outboundClicks??p.outbound_clicks)||0,eng=+p.engagements||0,rate=imp?eng/imp*100:0;
+  return `<div class="card p20 home-pinterest-summary"><div class="connection-row"><div><div class="category">📌 Pinterest</div><h3 style="margin:5px 0 0">Métricas</h3></div>${source.source==='api'?connectionBadge('connected'):has?pinterestManualBadge():connectionBadge('pending')}</div><div class="platform-kpis"><div class="platform-kpi"><small>Impresiones</small><b>${has?imp.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Guardados</small><b>${has?saves.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Pin clicks</small><b>${has?pinClicks.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Outbound clicks</small><b>${has?outbound.toLocaleString():'—'}</b></div><div class="platform-kpi"><small>Engagement</small><b>${has?pc(rate):'—'}</b></div><div class="platform-kpi"><small>Engagements</small><b>${has?eng.toLocaleString():'—'}</b></div></div><div class="divider"></div><small class="muted">${source.source==='api'?'Fuente: Pinterest API → Supabase.':has?'Datos importados manualmente; separados de Threads.':'Trial Access pendiente. Puedes importar datos desde Pinterest mientras esperamos la API.'}</small></div>`;
+}
+
+
+// GAP Desk Finds V1.14.1 · Threads espontáneos + importación manual de Pinterest
 initSecureDashboard();
 </script>
 </body>
