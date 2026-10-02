@@ -1606,7 +1606,7 @@ function threadMetricValue(p,metric){
 }
 
 function threadsTopPosts(){
-  const t=getRemoteMetrics().threads||{},all=Array.isArray(t.topPosts)?t.topPosts:[];
+  const all=threadPostPool();
   if(!all.length)return'';
   let posts=all.filter(p=>withinPeriod(p.posted_at||p.timestamp,threadTopFilters.period));
   posts.sort((a,b)=>{
@@ -1879,7 +1879,7 @@ function sortArrow(metric){
 }
 
 function threadsTopPosts(){
-  const t=getRemoteMetrics().threads||{},all=Array.isArray(t.topPosts)?t.topPosts:[];
+  const all=threadPostPool();
   if(!all.length)return'';
   let posts=all.filter(p=>withinPeriod(p.posted_at||p.timestamp,threadTopFilters.period));
   posts.sort((a,b)=>{
@@ -2078,7 +2078,7 @@ function customPeriodControls(scope,filters){
 }
 
 function threadsTopPosts(){
-  const t=getRemoteMetrics().threads||{},all=Array.isArray(t.topPosts)?t.topPosts:[];
+  const all=threadPostPool();
   if(!all.length)return'';
   let posts=all.filter(p=>customPeriodMatch(p.posted_at||p.timestamp,threadTopFilters));
   posts.sort((a,b)=>{
@@ -2260,7 +2260,7 @@ function customPeriodControls(scope,filters){
 }
 
 function threadsTopPosts(){
-  const t=getRemoteMetrics().threads||{},all=Array.isArray(t.topPosts)?t.topPosts:[];
+  const all=threadPostPool();
   if(!all.length)return'';
 
   let posts=all.filter(p=>customPeriodMatch(p.posted_at||p.timestamp,threadTopFilters));
@@ -2433,7 +2433,7 @@ function threadCustomRangeOnly(){
 }
 
 function threadsTopPosts(){
-  const t=getRemoteMetrics().threads||{},all=Array.isArray(t.topPosts)?t.topPosts:[];
+  const all=threadPostPool();
   if(!all.length)return'';
 
   let posts=all.filter(p=>customPeriodMatch(p.posted_at||p.timestamp,threadTopFilters));
@@ -2862,7 +2862,7 @@ function threadPeriodControlsTop(){
 }
 
 function threadsTopPosts(){
-  const t=getRemoteMetrics().threads||{},all=Array.isArray(t.topPosts)?t.topPosts:[];
+  const all=threadPostPool();
   if(!all.length)return'';
 
   let posts=all.filter(p=>customPeriodMatch(p.posted_at||p.timestamp,threadTopFilters));
@@ -2980,7 +2980,7 @@ function threadPeriodControlsTop(){
 }
 
 function threadsTopPosts(){
-  const t=getRemoteMetrics().threads||{},all=Array.isArray(t.topPosts)?t.topPosts:[];
+  const all=threadPostPool();
   if(!all.length)return'';
 
   let posts=all.filter(p=>customPeriodMatch(p.posted_at||p.timestamp,threadTopFilters));
@@ -3640,6 +3640,121 @@ async function refresh(){
   render();
 }
 
+const THREADS_IMPORT_CURSOR_KEY='gap-desk-finds-threads-import-cursor-v114';
+
+function remoteThreadDateParts(value){
+  const d=new Date(value||'');
+  if(Number.isNaN(d.getTime()))return null;
+  const pad=n=>String(n).padStart(2,'0');
+  return {
+    date:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,
+    time:`${pad(d.getHours())}:${pad(d.getMinutes())}`,
+    iso:d.toISOString()
+  };
+}
+function remoteThreadMediaType(p){
+  const mt=String(p?.media_type||'').toUpperCase();
+  if(mt.includes('CAROUSEL'))return 'CAROUSEL';
+  if(mt.includes('VIDEO'))return 'VIDEO';
+  if(mt.includes('IMAGE'))return 'IMAGE';
+  return 'TEXT';
+}
+function remoteThreadFormatLabel(p){
+  return {TEXT:'Texto',IMAGE:'Imagen',VIDEO:'Video',CAROUSEL:'Carrusel'}[remoteThreadMediaType(p)]||'Texto';
+}
+function findCalendarThreadForRemote(p){
+  const threadId=String(p?.thread_id||'');
+  const permalink=String(p?.permalink||'');
+  let exact=state.content.find(c=>c.platform==='Threads'&&(
+    (threadId&&String(c.threadId||c.threadsPostId||'')===threadId)||
+    (permalink&&String(c.threadPermalink||c.threadsPermalink||'')===permalink)
+  ));
+  if(exact)return exact;
+
+  const parts=remoteThreadDateParts(p?.posted_at||p?.timestamp);
+  const remoteText=normText(p?.text||'');
+  if(parts&&remoteText){
+    exact=state.content.find(c=>c.platform==='Threads'&&String(c.date||'')===parts.date&&normText(c.copy||'')===remoteText);
+    if(exact)return exact;
+  }
+
+  let best=null,bestScore=0;
+  for(const c of state.content){
+    if(c.platform!=='Threads'||c.status!=='Publicado')continue;
+    const sc=threadMatchScore(c,p);
+    if(sc>bestScore){best=c;bestScore=sc;}
+  }
+  return bestScore>=0.82?best:null;
+}
+async function importRemoteThreadsToCalendar(posts){
+  if(!Array.isArray(posts)||!posts.length)return {imported:0,matched:0};
+
+  const rawCursor=localStorage.getItem(THREADS_IMPORT_CURSOR_KEY);
+  const defaultCursor=new Date(Date.now()-72*60*60*1000);
+  const cursor=rawCursor?new Date(rawCursor):defaultCursor;
+  const cursorMs=Number.isNaN(cursor.getTime())?defaultCursor.getTime():cursor.getTime();
+  const candidates=posts
+    .filter(p=>{
+      const d=new Date(p?.posted_at||p?.timestamp||'');
+      return !Number.isNaN(d.getTime())&&d.getTime()>=cursorMs-60000;
+    })
+    .sort((a,b)=>new Date(a.posted_at||a.timestamp)-new Date(b.posted_at||b.timestamp));
+
+  let imported=0,matched=0;
+  for(const p of candidates){
+    const parts=remoteThreadDateParts(p?.posted_at||p?.timestamp);
+    if(!parts||!p?.thread_id)continue;
+
+    const metrics={
+      views:+p.views||0,likes:+p.likes||0,replies:+p.replies||0,reposts:+p.reposts||0,
+      quotes:+p.quotes||0,shares:+p.shares||0
+    };
+    const existing=findCalendarThreadForRemote(p);
+    if(existing){
+      const next={...existing,
+        threadId:String(p.thread_id),
+        threadPermalink:p.permalink||existing.threadPermalink||'',
+        postedAt:parts.iso,
+        ...metrics
+      };
+      const changed=['threadId','threadPermalink','postedAt','views','likes','replies','reposts','quotes','shares']
+        .some(k=>String(next[k]??'')!==String(existing[k]??''));
+      if(changed){next.id=existing.id;await put('content',next);}
+      matched++;
+      continue;
+    }
+
+    const mediaType=remoteThreadMediaType(p);
+    await add('content',{
+      date:parts.date,
+      dayLabel:dayName(parts.date),
+      platform:'Threads',
+      status:'Publicado',
+      objective:'',
+      type:remoteThreadFormatLabel(p),
+      topic:'',
+      copy:String(p.text||''),
+      notes:'Importado automáticamente desde Threads. Puedes completar Pilar/Objetivo/Tema/Producto cuando quieras.',
+      publicationTime:parts.time,
+      threadType:'',
+      mediaType,
+      hasImage:mediaType==='IMAGE'||mediaType==='CAROUSEL',
+      autoPublish:false,
+      autoPublishStatus:'published',
+      importedFromThreads:true,
+      importSource:'threads-api',
+      threadId:String(p.thread_id),
+      threadPermalink:p.permalink||'',
+      postedAt:parts.iso,
+      ...metrics
+    });
+    imported++;
+  }
+
+  localStorage.setItem(THREADS_IMPORT_CURSOR_KEY,new Date().toISOString());
+  return {imported,matched};
+}
+
 async function loadThreadsData(showToast=false){
   try{
     if(showToast)toast('Actualizando métricas de Threads…');
@@ -3661,8 +3776,9 @@ async function loadThreadsData(showToast=false){
     const next={threads:payload.threads||{},lastSync:payload.lastSync||payload.threads?.lastSync||new Date().toISOString(),connections:{threads:'connected',pinterest:'pending',amazon:'pending'}};
     saveThreadsPayload(next);
     localStorage.setItem(REMOTE_METRICS_KEY,JSON.stringify(next));
-    render();
-    if(showToast)toast('Threads actualizado ✓');
+    const imported=await importRemoteThreadsToCalendar(Array.isArray(payload.threads?.posts)?payload.threads.posts:[]);
+    if(imported.imported||imported.matched){await refresh();}else{render();}
+    if(showToast)toast(imported.imported?`Threads actualizado · ${imported.imported} publicación${imported.imported===1?'':'es'} importada${imported.imported===1?'':'s'} ✓`:'Threads actualizado ✓');
     return next;
   }catch(e){
     console.error('Threads dashboard data',e);
@@ -4683,7 +4799,8 @@ function monthlyCalendar(){
 
 function pubCard(c){
   const prod=state.products.find(p=>Number(p.id)===Number(c.productId));
-  return `<button class="pub-card" onclick="openContent(${c.id})"><div class="top"><span class="platform">${esc(c.platform)}</span></div><p>${esc(c.copy||c.pinterestTitle||c.type||'Sin copy')}</p><div class="calendar-pub-line"><span class="calendar-status-dot ${c.status==='Publicado'?'published':'pending'}"></span><span>${c.status==='Publicado'?'Publicado':'Pendiente'}</span></div><div class="objective-inline">${objectiveBadge(c.objective)}</div>${prod?`<small class="muted">🛍️ ${esc(prod.name)}</small>`:''}</button>`;
+  const imported=c.importedFromThreads?`<small class="muted" style="display:block;margin-top:5px">↻ Importado de Threads</small>`:'';
+  return `<button class="pub-card" onclick="openContent(${c.id})"><div class="top"><span class="platform">${esc(c.platform)}</span></div><p>${esc(c.copy||c.pinterestTitle||c.type||'Sin copy')}</p><div class="calendar-pub-line"><span class="calendar-status-dot ${c.status==='Publicado'?'published':'pending'}"></span><span>${c.status==='Publicado'?'Publicado':'Pendiente'}</span></div>${imported}<div class="objective-inline">${objectiveBadge(c.objective)}</div>${prod?`<small class="muted">🛍️ ${esc(prod.name)}</small>`:''}</button>`;
 }
 
 function weeklyCalendar(){
@@ -4767,7 +4884,7 @@ function auditInRange(value,start,end){
 }
 function auditThreadRows(){
   const remote=getRemoteMetrics().threads||{};
-  const posts=Array.isArray(remote.topPosts)?remote.topPosts:[];
+  const posts=threadPostPool();
   if(posts.length){
     return posts.map((p,i)=>{
       const reach=+p.views||0, likes=+p.likes||0, replies=+p.replies||0, reposts=+p.reposts||0, quotes=+p.quotes||0;
@@ -5230,6 +5347,7 @@ async function saveContent(e,id){
 }
 
 
+// GAP Desk Finds V1.14.0 · importación automática de Threads espontáneos
 initSecureDashboard();
 </script>
 </body>
